@@ -10,11 +10,32 @@
 #define POISSON_PEDIGREE_H
 
 #include <unordered_set>
+#include <unordered_map>
 #include <string>
 
 struct individual_node;
 struct coupled_node;
 class poisson_pedigree;
+
+/************************* GENERAL MACROS **************************/
+
+// Nodes are going to have IDs for the purpose of the dump/restore
+// operation and for labelling isomorphisms
+#define PRIVATE_ID_INFO(T) static long long ID_max; \
+static std::unordered_map<long long, T*> ID_map; \
+long long member_id; \
+void set_id(long long id) { ID_map.insert({ this->member_id = id, this }); \
+ID_max = ID_max < id ? id : ID_max; } \
+void set_id() { set_id(ID_max + 1); }
+#define PUBLIC_ID_ACCESS(T) \
+static T* get_member_by_id(long long id) \
+{ auto it = ID_map.find(id); return it == ID_map.end() ? NULL : it->second; } \
+long long get_id() { return this->member_id; }
+#define INIT_ID(T) long long T::ID_max; std::unordered_map<long long, T*> T::ID_map;
+
+// Nodes and trees need to be dumpable and recoverable
+#define DUMPABLE(T) std::string dump(); \
+static T* recover_dumped(std::string dump_out);
 
 /************************** INDIVIDUALS ****************************/
 
@@ -27,26 +48,31 @@ typedef long long unsigned gene;
 struct individual_node
 {
 private:
+	// ID information
+	PRIVATE_ID_INFO(individual_node)
 	// Private members
 	/// A genome is a sequence of blocks, each containing one gene
 	/// The length of the gene array is determined by the pedigree
 	gene* genome;
+	int genome_size;
 	/// The parent couple of this individual
 	coupled_node* par;
 	/// The coupled node this individual forms with their mate
 	coupled_node* mate;
 	// Private methods
 	/// Initializer method chained from constructors
-	void init(gene* genome, coupled_node* par, coupled_node* mate);
+	void init(long long id, int genome_size, gene* genome, coupled_node* par, coupled_node* mate);
 public:
 	// Constructors
+	/// Given the size of the genome and the id
+	individual_node(int genome_size, long long id);
 	/// Given the size of the genome
 	individual_node(int genome_size);
 	/// Default -- leaves genome NULL
 	individual_node();
 	// Accessors & mutators
-	/// Return a modifiable lvalue of the gene in position b
-	gene& block(int b);
+	/// Index a modifiable lvalue of the gene in position b
+	gene& operator[](int b);
 	/// Return the mate coupled node
 	coupled_node* couple();
 	/// Mate with another individual and return the couple
@@ -55,6 +81,10 @@ public:
 	coupled_node* parent();
 	/// Assign a parent couple
 	coupled_node* assign_par(coupled_node* par);
+	// Info dump
+	DUMPABLE(individual_node)
+	// ID Information
+	PUBLIC_ID_ACCESS(individual_node)
 };
 
 /**************************** COUPLES ******************************/
@@ -66,6 +96,8 @@ public:
 struct coupled_node
 {
 private:
+	// ID information
+	PRIVATE_ID_INFO(coupled_node)
 	// Private members
 	/// A coupled node contains one or two individual nodes
 	/// Couples of one individual store two copies of that individual
@@ -75,10 +107,12 @@ private:
 	std::unordered_set<individual_node*> children;
 	// Private methods
 	/// Initializer method chained from constructors
-	void init(std::pair<individual_node*, individual_node*> couple,
+	void init(long long id, std::pair<individual_node*, individual_node*> couple,
 		std::unordered_set<individual_node*> children);
 public:
 	// Constructors
+	/// Given a pair and an id
+	coupled_node(individual_node* indiv1, individual_node* indiv2, long long id);
 	/// Given a pair to mate
 	coupled_node(individual_node* indiv1, individual_node* indiv2);
 	/// Given an extant individual
@@ -97,6 +131,10 @@ public:
 	/// children set
 	std::unordered_set<individual_node*>::iterator begin();
 	std::unordered_set<individual_node*>::iterator end();
+	// Info dump
+	DUMPABLE(coupled_node)
+	// ID Information
+	PUBLIC_ID_ACCESS(coupled_node)
 };
 
 /*********************** POISSON PEDIGREE **************************/
@@ -111,19 +149,20 @@ private:
 	int genome_len; /// B in the paper
 	int tfr; /// Expected number of children per couple; alpha
 	int num_gen; /// T in the paper
+	int pop_sz; /// N in the paper
 	int cur_gen; /// The current grade number
 	/// Grades of nodes are represented as unordered sets
 	std::unordered_set<coupled_node*>* grades;
 	// Private methods
 	/// Initializer method chained from constructors
-	void init(int genome_len, int tfr, int num_gen,
+	void init(int genome_len, int tfr, int num_gen, int pop_sz,
 		std::unordered_set<coupled_node*>* grades);
 	/// Build pedigree
 	void build();
 public:
 	// Constructors
 	/// Given statistics, build a stochastic pedigree
-	poisson_pedigree(int genome_len, int tfr, int num_gen);
+	poisson_pedigree(int genome_len, int tfr, int num_gen, int pop_sz);
 	// Statistic accessors
 	int num_blocks();
 	int num_child();
@@ -141,10 +180,8 @@ public:
 	/// current grade set
 	std::unordered_set<coupled_node*>::iterator begin();
 	std::unordered_set<coupled_node*>::iterator end();
-	// Dump the pedigree information as a string
-	std::string dump();
+	// Info dump
+	DUMPABLE(poisson_pedigree)
 };
-// Rebuild a pedigree from a dumped string
-poisson_pedigree* rebuild_dumped_pedigree(std::string dump);
 
 #endif
