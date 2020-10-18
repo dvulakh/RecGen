@@ -9,6 +9,8 @@
 #ifndef POISSON_PEDIGREE_H
 #define POISSON_PEDIGREE_H
 
+#include "flags.h"
+
 #include <unordered_set>
 #include <unordered_map>
 #include <string>
@@ -35,7 +37,9 @@ long long get_id() { return this->member_id; }
 
 // Nodes and trees need to be dumpable and recoverable
 #define DUMPABLE(T) std::string dump(); \
-static T* recover_dumped(std::string dump_out);
+static T* recover_dumped(std::string dump_out, T*); \
+static flag_reader frin;
+#define INIT_DUMP(T) flag_reader T::frin;
 
 /************************** INDIVIDUALS ****************************/
 
@@ -70,6 +74,8 @@ public:
 	individual_node(int genome_size);
 	/// Default -- leaves genome NULL
 	individual_node();
+	// Destructor
+	~individual_node();
 	// Accessors & mutators
 	/// Index a modifiable lvalue of the gene in position b
 	gene& operator[](int b);
@@ -83,6 +89,9 @@ public:
 	coupled_node* assign_par(coupled_node* par);
 	// Info dump
 	DUMPABLE(individual_node)
+	/// In addition to dumping full state,individual can dump just
+	/// The id and genetic info
+	std::string dump_genes();
 	// ID Information
 	PUBLIC_ID_ACCESS(individual_node)
 };
@@ -111,12 +120,14 @@ private:
 		std::unordered_set<individual_node*> children);
 public:
 	// Constructors
-	/// Given a pair and an id
-	coupled_node(individual_node* indiv1, individual_node* indiv2, long long id);
+	/// Given an id
+	coupled_node(long long id);
 	/// Given a pair to mate
 	coupled_node(individual_node* indiv1, individual_node* indiv2);
 	/// Given an extant individual
 	coupled_node(individual_node* ext);
+	/// Default
+	coupled_node() {}
 	// Access individuals by indexing
 	individual_node*& operator[](int index);
 	// Add a child to this couple's progeny
@@ -126,6 +137,8 @@ public:
 	bool is_child(individual_node* other);
 	/// Query for a coupled node
 	bool is_child(coupled_node* other);
+	// Remove child
+	individual_node* erase_child(individual_node* ch);
 	// Iterating over a coupled_node iterates over its children
 	/// Internally, this is represented by iterating over the
 	/// children set
@@ -157,12 +170,14 @@ private:
 	/// Initializer method chained from constructors
 	void init(int genome_len, int tfr, int num_gen, int pop_sz,
 		std::unordered_set<coupled_node*>* grades);
-	/// Build pedigree
-	void build();
 public:
 	// Constructors
 	/// Given statistics, build a stochastic pedigree
 	poisson_pedigree(int genome_len, int tfr, int num_gen, int pop_sz);
+	/// Default
+	poisson_pedigree();
+	/// Build pedigree
+	poisson_pedigree* build();
 	// Statistic accessors
 	int num_blocks();
 	int num_child();
@@ -182,6 +197,9 @@ public:
 	std::unordered_set<coupled_node*>::iterator end();
 	// Info dump
 	DUMPABLE(poisson_pedigree)
+	/// In addition to dumping full info, a pedigree can dump just
+	/// the extant population genetic data for REC-GEN input
+	std::string dump_extant();
 };
 
 #endif
