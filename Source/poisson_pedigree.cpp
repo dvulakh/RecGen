@@ -195,7 +195,6 @@ individual_node* coupled_node::erase_child(individual_node *ch)
 	return ch;
 }
 
-
 // Iterating over a coupled_node iterates over its children
 /// Internally, this is represented by iterating over the
 /// children set
@@ -347,6 +346,14 @@ int poisson_pedigree::num_child() { return this->tfr; }
 int poisson_pedigree::num_grade() { return this->num_gen; }
 
 // Adding and accessing coupled nodes in grades
+/// Reset the pedigree current grade pointer to 0 (returns self)
+poisson_pedigree* poisson_pedigree::reset()
+{
+	this->cur_gen = 0;
+	return this;
+}
+/// Return whether the current grade is the last one
+bool poisson_pedigree::done() { return this->cur_gen == this->num_gen; }
 /// Push an empty grade (returns self)
 poisson_pedigree* poisson_pedigree::new_grade()
 {
@@ -403,8 +410,9 @@ std::string poisson_pedigree::dump()
 // Dump the extant population information as a string
 std::string poisson_pedigree::dump_extant()
 {
-	// Dump the size of the extant population
-	std::string d = "-n " + std::to_string((*this)[0].size()) + "\n";
+	// Dump the size of the extant population and the generation count
+	std::string d = "-n " + std::to_string((*this)[0].size()) +
+			"\n-T " + std::to_string(this->num_gen) + "\n";
 	// Dump the extant individual genetic data
 	for (coupled_node* couple : (*this)[0])
 		d += "i " + (*couple)[0]->dump_genes() + "\n";
@@ -473,6 +481,10 @@ poisson_pedigree* poisson_pedigree::recover_dumped(std::string dump_out, poisson
 	}
 	// If the extant generation parameter is set, insert the couples to the bottom
 	if (extant_size >= 0) {
+		/// Reset pedigree
+		ped->reset();
+		for (individual_node* indiv : indivs)
+			ped->add_to_current(new coupled_node(indiv, indiv));
 	}
 	// Otherwise, find the founders and rebuild the tree
 	else {

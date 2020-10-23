@@ -1,4 +1,10 @@
 
+/********************************************************************
+* Defines a structure for reading strings with command-line option
+* style flags -- used for dumping and restoring human-readable
+* pedigree data
+********************************************************************/
+
 #ifndef FLAGS_H
 #define FLAGS_H
 

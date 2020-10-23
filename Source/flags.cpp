@@ -1,4 +1,10 @@
 
+/********************************************************************
+* Implements a structure for reading strings with command-line
+* option style flags -- used for dumping and restoring human-
+* readable pedigree data
+********************************************************************/
+
 #include "flags.h"
 #include <sstream>
 

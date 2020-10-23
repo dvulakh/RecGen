@@ -156,7 +156,7 @@ public:
 // and organize other information, such as grades and growth rate
 class poisson_pedigree
 {
-private:
+protected:
 	// Private members
 	/// Population information
 	int genome_len; /// B in the paper
@@ -183,6 +183,10 @@ public:
 	int num_child();
 	int num_grade();
 	// Adding and accessing coupled nodes in grades
+	/// Reset the current grade pointer to zero (returns self)
+	poisson_pedigree* reset();
+	/// Return whether the current grade is the last one
+	bool done();
 	/// Push an empty grade (returns self)
 	poisson_pedigree* new_grade();
 	/// Add to current grade (returns added node)
