@@ -9,9 +9,9 @@
 
 #include "poisson_pedigree.h"
 
-#include <unordered_set>
 #include <chrono>
 #include <cstdio>
+#include <set>
 
 // Accessing the settings bits of a rec_gen object
 #define IS(S) (settings & (S))
@@ -44,9 +44,9 @@ protected:
 	class hypergraph
 	{
 	public:
-		virtual void insert_edge(std::unordered_set<individual_node*> e) {}
-		virtual void erase_edge(std::unordered_set<individual_node*> e) {}
-		virtual std::unordered_set<individual_node*> extract_clique() {}
+		virtual void insert_edge(std::set<coupled_node*> e) {}
+		virtual void erase_edge(std::set<coupled_node*> e) {}
+		virtual std::set<coupled_node*> extract_clique() {}
 	};
 	// Internal pedigree
 	poisson_pedigree* ped;
@@ -57,20 +57,28 @@ protected:
 	// Assign parents to the top-level generation based on the siblinghood hypergraph
 	virtual void assign_parents(hypergraph* G) {}
 	// Logging info
-	/// Log file pointers
+	/// Log file names and pointers
+	std::string work_path, data_path;
 	std::FILE *work_log, *data_log;
 	/// Time of reconstruction start
 	std::chrono::high_resolution_clock::time_point start_time;
 	/// Settings bitstring
 	long long settings;
 	// Initialize given all info
-	void init(poisson_pedigree* ped, std::string work_log, std::string data_log, long long settings);
+	void init(poisson_pedigree* ped, std::string work_log, std::string data_log, double sib, double rec, int d, long long settings);
+	// Private members
+	/// Search parameters
+	double sib; /// Threshold of genetic overlap for sibling triples
+	double rec; /// Proportion of genome that needs to be recovered for a node to be valid
+	int d; /// The minimum desirable siblinghood clique size (Definition 4.2, d-richness)
 public:
 	// Constructors
 	/// Given pedigree
 	rec_gen(poisson_pedigree* ped);
 	/// Given all
-	rec_gen(poisson_pedigree* ped, std::string work_log, std::string data_log, long long settings);
+	rec_gen(poisson_pedigree* ped, std::string work_log, std::string data_log, double sib, double rec, int d, long long settings);
+	// Initialize post-construction -- important if parameters like filenames changed since construction
+	void init();
 	// Access pedigree
 	poisson_pedigree* get_pedigree();
 	// Rebuild (returns reconstructed pedigree)

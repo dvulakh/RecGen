@@ -130,6 +130,13 @@ public:
 	coupled_node() {}
 	// Access individuals by indexing
 	individual_node*& operator[](int index);
+	// Manipulate genes
+	/// Query whether a member of the couple has gene g in block b
+	bool has_gene(int b, gene g);
+	/// Insert a gene to an unassigned couple member
+	gene insert_gene(int b, gene g);
+	// Get a parentless member of the couple
+	individual_node* get_orphan();
 	// Add a child to this couple's progeny
 	individual_node* add_child(individual_node* other);
 	// Query if a node is a child
@@ -144,6 +151,8 @@ public:
 	/// children set
 	std::unordered_set<individual_node*>::iterator begin();
 	std::unordered_set<individual_node*>::iterator end();
+	// Get all extant descendants of a couple
+	std::unordered_set<individual_node*> extant_desc();
 	// Info dump
 	DUMPABLE(coupled_node)
 	// ID Information

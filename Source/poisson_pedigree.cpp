@@ -32,6 +32,7 @@ void individual_node::init(long long id, int genome_size, gene* genome, coupled_
 	this->genome = genome;
 	this->par = par;
 	this->mate = mate;
+	memset(this->genome, 0, sizeof(gene) * genome_size);
 }
 
 // Construct an individual node given the genome size and the ID
@@ -80,8 +81,8 @@ coupled_node* individual_node::assign_par(coupled_node* par)
 std::string individual_node::dump()
 {
 	return "-i " + std::to_string(this->get_id()) + " -c " +
-		std::to_string(this->mate->get_id()) + " -p " +
-		std::to_string(this->par->get_id()) + " " +
+		std::to_string(this->mate ? this->mate->get_id() : 0) + " -p " +
+		std::to_string(this->par ? this->par->get_id() : 0) + " " +
 		this->dump_genes();
 }
 /// Dump only the genes: -i {id} -g {genes}
@@ -165,6 +166,18 @@ individual_node*& coupled_node::operator[](int index)
 	return this->couple.second;
 }
 
+// Manipulate genes
+/// Query whether a member of the couple has gene g in block b
+bool coupled_node::has_gene(int b, gene g)
+{ return (*(*this)[0])[b] == g || (*(*this)[1])[b] == g; }
+/// Insert a gene to an unassigned couple member
+gene coupled_node::insert_gene(int b, gene g)
+{ return ((*(*this)[0])[b] ? *(*this)[1] : *(*this)[0])[b] = g; }
+
+// Get a parentless member of the couple
+individual_node* coupled_node::get_orphan()
+{ return (*this)[0]->parent() == NULL ? (*this)[1] : (*this)[0]; }
+
 // Add a child to this couple's progeny
 individual_node* coupled_node::add_child(individual_node* other)
 {
@@ -202,6 +215,22 @@ std::unordered_set<individual_node*>::iterator coupled_node::begin()
 { return this->children.begin(); }
 std::unordered_set<individual_node*>::iterator coupled_node::end()
 { return this->children.end(); }
+
+// Get all extant descendants of a couple
+std::unordered_set<individual_node*> coupled_node::extant_desc()
+{
+	/// If extant layer reached, return this
+	if ((*this)[0] == (*this)[1])
+		return std::unordered_set<individual_node*>({ (*this)[0] });
+	/// Initialize a descendants set
+	std::unordered_set<individual_node*> desc;
+	/// For all children, add their descendants to this set
+	for (individual_node* ch : (*this)) {
+		auto ret = ch->couple()->extant_desc();
+		desc.insert(ret.begin(), ret.end());
+	}
+	return desc;
+}
 
 // Dump the couple information as a string
 /// -i {id} -m {member ids} -c {children ids}
@@ -282,7 +311,7 @@ poisson_pedigree* poisson_pedigree::build()
 	// Generate the founder population
 	this->cur_gen = this->num_gen - 1;
 	/// If there is an odd member, ignore them, since they cannot mate
-	for (int i = 0; i < this->pop_sz / 2 * 2; i++) {
+	for (int i = 1; i <= this->pop_sz / 2 * 2; i++) {
 		individual_node* indiv = new individual_node(this->genome_len);
 		/// Give the ith founder gene i in all blocks
 		for (int j = 0; j < this->genome_len; j++)
@@ -353,7 +382,7 @@ poisson_pedigree* poisson_pedigree::reset()
 	return this;
 }
 /// Return whether the current grade is the last one
-bool poisson_pedigree::done() { return this->cur_gen == this->num_gen; }
+bool poisson_pedigree::done() { return this->cur_gen == this->num_gen - 1; }
 /// Push an empty grade (returns self)
 poisson_pedigree* poisson_pedigree::new_grade()
 {
@@ -412,10 +441,11 @@ std::string poisson_pedigree::dump_extant()
 {
 	// Dump the size of the extant population and the generation count
 	std::string d = "-n " + std::to_string((*this)[0].size()) +
-			"\n-T " + std::to_string(this->num_gen) + "\n";
+			"\n-T " + std::to_string(this->num_gen) +
+			"\n-B " + std::to_string(this->genome_len) + "\n";
 	// Dump the extant individual genetic data
 	for (coupled_node* couple : (*this)[0])
-		d += "i " + (*couple)[0]->dump_genes() + "\n";
+		d += "i -i " + std::to_string((*couple)[0]->get_id()) + " " + (*couple)[0]->dump_genes() + "\n";
 	return d;
 }
 
@@ -484,7 +514,7 @@ poisson_pedigree* poisson_pedigree::recover_dumped(std::string dump_out, poisson
 		/// Reset pedigree
 		ped->reset();
 		for (individual_node* indiv : indivs)
-			ped->add_to_current(new coupled_node(indiv, indiv));
+			ped->add_to_current(indiv->mate_with(indiv));
 	}
 	// Otherwise, find the founders and rebuild the tree
 	else {
