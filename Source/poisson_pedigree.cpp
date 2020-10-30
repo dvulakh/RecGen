@@ -103,6 +103,9 @@ individual_node* individual_node::recover_dumped(std::string dump_out, individua
 		frin.add_flag("id", 'i', 1, [&](std::vector<std::string> v, void* p) {
 			individual_node* indiv = static_cast<individual_node*>(p);
 			individual_node* orig = individual_node::get_member_by_id(std::stoll(v[0]));
+			if (indiv == orig)
+				return;
+			individual_node::ID_map.erase(indiv->get_id());
 			if (orig == NULL)
 				indiv->set_id(std::stoll(v[0]));
 			else {
@@ -254,6 +257,9 @@ coupled_node* coupled_node::recover_dumped(std::string dump_out, coupled_node* c
 		frin.add_flag("id", 'i', 1, [&](std::vector<std::string> v, void* p) {
 			coupled_node* couple = static_cast<coupled_node*>(p);
 			coupled_node* orig = coupled_node::get_member_by_id(std::stoll(v[0]));
+			if (couple == orig)
+				return;
+			coupled_node::ID_map.erase(couple->get_id());
 			if (orig == NULL)
 				couple->set_id(std::stoll(v[0]));
 			else {
