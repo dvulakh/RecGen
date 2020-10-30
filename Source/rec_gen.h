@@ -39,15 +39,17 @@
 // the individual steps differently
 class rec_gen
 {
-protected:
+public:
 	// Hypergraph member class for sibling detection
 	class hypergraph
 	{
 	public:
-		virtual void insert_edge(std::set<coupled_node*> e) {}
-		virtual void erase_edge(std::set<coupled_node*> e) {}
+		class edge {};
+		virtual void insert_edge(edge e) {}
+		virtual void erase_edge(edge e) {}
 		virtual std::set<coupled_node*> extract_clique() {}
 	};
+protected:
 	// Internal pedigree
 	poisson_pedigree* ped;
 	// Reconstruct the genetic material of top-level coupled node v (returns v)

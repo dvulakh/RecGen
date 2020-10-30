@@ -8,6 +8,7 @@
 
 #include "rec_gen.h"
 
+#include <initializer_list>
 #include <map>
 #include <set>
 
@@ -15,29 +16,73 @@
 // presented in the paper "Efficient Reconstruction of Stochastic Pedigrees"
 class rec_gen_basic : public rec_gen
 {
-protected:
+public:
 	// Basic hypergraph implementation
 	class hypergraph_basic : public hypergraph
 	{
+	public:
+		// Edge class
+		class edge_basic
+		{
+		protected:
+			// Couples contained in edge
+			/// Internally sort by id so that a > b > c
+			coupled_node *a, *b, *c;
+		public:
+			// Constructor
+			/// Construct with initializer list
+			edge_basic(std::initializer_list<coupled_node*> vert);
+			// Iterator class
+			/// Iterating over an edge iterates over contained vertices
+			class iterator
+			{
+			protected:
+				/// Index
+				int i;
+				/// Parent
+				edge_basic& par;
+			public:
+				/// Construct
+				iterator(int, edge_basic&);
+				/// Advance
+				iterator operator++();
+				/// Compare
+				bool operator==(const iterator&);
+				bool operator!=(const iterator&);
+				/// Dereference
+				coupled_node* operator*();
+				/// Referral
+				coupled_node& operator->();
+			};
+			/// Iterators need access to parent privates
+			friend class iterator;
+			/// Begin and end iterators
+			iterator begin();
+			iterator end();
+			// Comparison (for sets)
+			bool operator<(const edge_basic&) const;
+		};
 	protected:
-		// Vertex set -- set of all vertices and hyperdges that contain them
-		std::map<coupled_node*, std::set<std::set<coupled_node*>>> vert;
-		// Adjacency map -- set of all edges and their multiplicities
-		std::map<std::set<coupled_node*>, int> adj;
-		// Best clique found
+		// Graph information
+		/// Vertex set -- set of all vertices and hyperdges that contain them
+		std::map<coupled_node*, std::set<edge_basic>> vert;
+		/// Adjacency map -- set of all edges and their multiplicities
+		std::map<edge_basic, int> adj;
+		/// Best clique found
 		std::set<coupled_node*> best_clique;
-		// Clique currently under construction
+		/// Clique currently under construction
 		std::set<coupled_node*> clique;
 		// Recursively build best clique
-		void construct_best_clique_BB(std::map<coupled_node*, std::set<std::set<coupled_node*>>>::iterator it, int depth);
+		void construct_best_clique_BB(std::map<coupled_node*, std::set<edge_basic>>::iterator it, int depth);
 	public:
 		// Constructor
 		hypergraph_basic();
 		// Inherited methods
-		virtual void insert_edge(std::set<coupled_node*> e);
-		virtual void erase_edge(std::set<coupled_node*> e);
+		virtual void insert_edge(edge_basic e);
+		virtual void erase_edge(edge_basic e);
 		virtual std::set<coupled_node*> extract_clique();
 	};
+protected:
 	// Reconstruct the genetic material of top-level coupled node v (returns v)
 	virtual coupled_node* collect_symbols(coupled_node* v);
 	// Perform statistical tests to detect siblinghood (returns hypergraph)

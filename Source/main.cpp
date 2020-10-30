@@ -11,14 +11,15 @@ int main() {
 	// //auto ped2 = poisson_pedigree::recover_dumped(ped->dump(), new poisson_pedigree());
 	// //cout << ped->dump() << endl << endl << ped->dump_extant();
 	// //cout << "\n=======================================\n\n" << ped2->dump();
-	/*
-	ifstream fin ("good_extant");
+	//*
+	ifstream fin ("good_extant3");
 	string s;
 	getline (fin, s, (char)fin.eof());
 	auto ped2 = poisson_pedigree::recover_dumped(s, new poisson_pedigree());
 	//*/
-	//*
-	auto ped = poisson_pedigree(100, 5, 2, 9).build();
+	/*
+	//auto ped = poisson_pedigree(100, 5, 3, 8).build();
+	auto ped = poisson_pedigree(100, 5, 3, 4).build();
 	auto ped2 = poisson_pedigree::recover_dumped(ped->dump_extant(), new poisson_pedigree());
 	cout << ped->dump() << endl;
 	//*/
