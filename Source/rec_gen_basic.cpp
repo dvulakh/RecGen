@@ -98,11 +98,11 @@ rec_gen_basic::hypergraph_basic::edge_basic::edge_basic(std::initializer_list<co
 	/// Get values in the order that they appear
 	auto it = vert.begin(); a = *(it++), b = (*it++), c = *(it++);
 	/// Internally keep them sorted
-	if (b->get_id() < c->get_id())
+	if (b->get_id() > c->get_id())
 		std::swap(b, c);
-	if (a->get_id() < b->get_id())
+	if (a->get_id() > b->get_id())
 		std::swap(a, b);
-	if (b->get_id() < c->get_id())
+	if (b->get_id() > c->get_id())
 		std::swap(b, c);
 }
 
@@ -139,9 +139,9 @@ bool rec_gen_basic::hypergraph_basic::edge_basic::operator<(const edge_basic& ot
 {
 	return this->a->get_id() == ot.a->get_id() ?
 		this->b->get_id() == ot.b->get_id() ?
-		this->c->get_id() > ot.c->get_id() :
-		this->b->get_id() > ot.b->get_id() :
-		this->a->get_id() > ot.a->get_id();
+		this->c->get_id() < ot.c->get_id() :
+		this->b->get_id() < ot.b->get_id() :
+		this->a->get_id() < ot.a->get_id();
 }
 
 // GRAPH LOGIC

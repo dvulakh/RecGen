@@ -1,9 +1,11 @@
 
 #include "poisson_pedigree.h"
 #include "rec_gen_basic.h"
+#include "tree_diff_basic.h"
 
 #include <iostream>
 #include <fstream>
+#include <cstdio>
 using namespace std;
 
 int main() {
@@ -12,20 +14,32 @@ int main() {
 	// //cout << ped->dump() << endl << endl << ped->dump_extant();
 	// //cout << "\n=======================================\n\n" << ped2->dump();
 	//*
-	ifstream fin ("good_extant3");
+	ifstream fin ("good_extant");
+	ifstream fin2("good_dump");
 	string s;
 	getline (fin, s, (char)fin.eof());
 	auto ped2 = poisson_pedigree::recover_dumped(s, new poisson_pedigree());
+	getline (fin2, s, (char)fin2.eof());
+	auto ped = poisson_pedigree::recover_dumped(s, new poisson_pedigree());
 	//*/
 	/*
-	//auto ped = poisson_pedigree(100, 5, 3, 8).build();
+	//auto ped = poisson_pedigree(100, 6, 3, 15).build();
 	auto ped = poisson_pedigree(100, 5, 3, 4).build();
-	auto ped2 = poisson_pedigree::recover_dumped(ped->dump_extant(), new poisson_pedigree());
 	cout << ped->dump() << endl;
+	cout << ped->dump_extant() << endl;
+	auto ped2 = poisson_pedigree::recover_dumped(ped->dump_extant(), new poisson_pedigree());
 	//*/
+	//*
 	auto rg = new rec_gen_basic(ped2);
 	cout << ped2->dump_extant() << endl;
 	rg->apply_rec_gen();
 	cout << rg->get_pedigree()->dump() << endl;
+	auto diff = (new tree_diff_basic(ped, ped2))->topology_biject()->blocks_check();
+	printf("\nNodes correct:    %d/%d (%d%%)\nEdges correct:    %d/%d (%d%%)\nBlocks attempted: %d/%d (%d%%)\nBlocks correct:   %d/%d (%d%%/%d%%)\n",
+		diff->nodes_correct, diff->nodes_total, 100 * diff->nodes_correct / diff->nodes_total,
+		diff->edges_correct, diff->edges_total, 100 * diff->edges_correct / diff->edges_total,
+		diff->blocks_attempted, diff->blocks_total, 100 * diff->blocks_attempted / diff->blocks_total,
+		diff->blocks_correct, diff->blocks_total, 100 * diff->blocks_correct / diff->blocks_total, 100 * diff->blocks_correct / diff->blocks_attempted);
+	//*/
 	return 0;
 }

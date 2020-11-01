@@ -32,7 +32,8 @@ void set_id() { set_id(ID_max + 1); }
 #define PUBLIC_ID_ACCESS(T) \
 static T* get_member_by_id(long long id) \
 { auto it = ID_map.find(id); return it == ID_map.end() ? NULL : it->second; } \
-long long get_id() { return this->member_id; }
+long long get_id() { return this->member_id; } \
+static void clear_ids() { ID_map.clear(); ID_max = 0; }
 #define INIT_ID(T) long long T::ID_max; std::unordered_map<long long, T*> T::ID_map;
 
 // Nodes and trees need to be dumpable and recoverable
@@ -144,6 +145,8 @@ public:
 	bool is_child(individual_node* other);
 	/// Query for a coupled node
 	bool is_child(coupled_node* other);
+	/// Query for number of children
+	int num_ch();
 	// Remove child
 	individual_node* erase_child(individual_node* ch);
 	// Iterating over a coupled_node iterates over its children
@@ -191,6 +194,7 @@ public:
 	int num_blocks();
 	int num_child();
 	int num_grade();
+	int size();
 	// Adding and accessing coupled nodes in grades
 	/// Reset the current grade pointer to zero (returns self)
 	poisson_pedigree* reset();
@@ -198,6 +202,8 @@ public:
 	bool done();
 	/// Push an empty grade (returns self)
 	poisson_pedigree* new_grade();
+	/// Move to the next grade without pushing a new one (returns self)
+	poisson_pedigree* next_grade();
 	/// Add to current grade (returns added node)
 	coupled_node* add_to_current(coupled_node* couple);
 	/// Access grades by indexing

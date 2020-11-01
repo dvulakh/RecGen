@@ -202,6 +202,8 @@ bool coupled_node::is_child(coupled_node* other)
 	/// A coupled node is a child if either of its members is
 	return this->is_child((*other)[0]) || this->is_child((*other)[1]);
 }
+/// Query for number of children
+int coupled_node::num_ch() { return this->children.size(); }
 
 // Remove a child from a couple's progeny
 individual_node* coupled_node::erase_child(individual_node *ch)
@@ -379,6 +381,7 @@ poisson_pedigree::poisson_pedigree()
 int poisson_pedigree::num_blocks() { return this->genome_len; }
 int poisson_pedigree::num_child() { return this->tfr; }
 int poisson_pedigree::num_grade() { return this->num_gen; }
+int poisson_pedigree::size() { return this->grades[this->cur_gen].size(); }
 
 // Adding and accessing coupled nodes in grades
 /// Reset the pedigree current grade pointer to 0 (returns self)
@@ -396,6 +399,9 @@ poisson_pedigree* poisson_pedigree::new_grade()
 	this->grades[++this->cur_gen] = std::unordered_set<coupled_node*>();
 	return this;
 }
+/// Move to the next grade without pushing a new one (returns self)
+poisson_pedigree* poisson_pedigree::next_grade()
+{ this->cur_gen++; return this; }
 /// Add to current grade (returns added node)
 coupled_node* poisson_pedigree::add_to_current(coupled_node* couple)
 { this->grades[this->cur_gen].insert(couple); return couple; }
@@ -493,6 +499,9 @@ poisson_pedigree* poisson_pedigree::recover_dumped(std::string dump_out, poisson
 			new coupled_node(std::stoll(v[0]));
 		});
 	}
+	// Reset the identities of nodes
+	individual_node::clear_ids();
+	coupled_node::clear_ids();
 	// Possess the flag reader
 	poisson_pedigree::frin.possess(ped);
 	// Prepare sets of nodes

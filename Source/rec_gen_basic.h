@@ -26,7 +26,7 @@ public:
 		{
 		protected:
 			// Couples contained in edge
-			/// Internally sort by id so that a > b > c
+			/// Internally sort by id so that a < b < c
 			coupled_node *a, *b, *c;
 		public:
 			// Constructor
