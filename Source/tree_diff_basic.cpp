@@ -32,16 +32,17 @@ bool tree_diff_basic::biject_parent(coupled_node* v)
 	int num_match = 0;
 	/// Get a map of possible parents to counts among children
 	std::unordered_map<coupled_node*, int> par_count;
+	/// Lambda for inserting parents to the map
+	auto insert_to_pars = [&](coupled_node* par) {
+		if (par) {
+			par_count[par]++;
+			DPRINTF("Adding node %lldr to parent counts: new count %d",
+					par->get_id(), par_count[par]);
+		}
+	};
+	/// Loop through reconstructed children
 	for (coupled_node* ch : *this->recon)
 		if (this->re_to_or[ch]) {
-			/// Lambda for inserting parents to the map
-			auto insert_to_pars = [&](coupled_node* par) {
-				if (par) {
-					par_count[par]++;
-					DPRINTF("Adding node %lldr to parent counts: new count %d",
-						par->get_id(), par_count[par]);
-				}
-			};
 			/// Try both parents
 			insert_to_pars((*ch)[0]->parent());
 			if ((*ch)[0] != (*ch)[1])

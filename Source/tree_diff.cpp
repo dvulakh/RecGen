@@ -33,13 +33,16 @@ tree_diff* tree_diff::blocks_check()
 				/// Add the number of non-zero blocks to the count of attempted blocks
 				this->blocks_attempted += (bool)(*(*bi.second)[0])[b] + (bool)(*(*bi.second)[1])[b];
 				/// Add the number of correct blocks
-				this->blocks_correct += std::min((*(*bi.first)[0])[b], (*(*bi.first)[1])[b]) == std::min((*(*bi.second)[0])[b], (*(*bi.second)[1])[b]);
-				this->blocks_correct += std::max((*(*bi.first)[0])[b], (*(*bi.first)[1])[b]) == std::max((*(*bi.second)[0])[b], (*(*bi.second)[1])[b]);
+				this->blocks_correct += (*(*bi.first)[0])[b] == (*(*bi.second)[0])[b] || (*(*bi.first)[0])[b] == (*(*bi.second)[1])[b];
+				/// If blocks are distinct, second block should match either
+				this->blocks_correct += (*(*bi.first)[1])[b] != (*(*bi.first)[0])[b] && ((*(*bi.first)[1])[b] == (*(*bi.second)[0])[b] || (*(*bi.first)[1])[b] == (*(*bi.second)[1])[b]);
+				/// Otherwise, it should match both
+				this->blocks_correct += (*(*bi.first)[1])[b] == (*(*bi.first)[0])[b] && (*(*bi.first)[1])[b] == (*(*bi.second)[0])[b] && (*(*bi.first)[1])[b] == (*(*bi.second)[1])[b];
 			}
 			DPRINTF("Comparing blocks in pair (%lldo -> %lldr): %d (%d%%) attempted; %d (%d%%/%d%%) correct", bi.first->get_id(), bi.second->get_id(),
 				this->blocks_attempted - old_attempted, 50 * (this->blocks_attempted - old_attempted) / this->orig->num_blocks(),
-				this->blocks_correct - old_correct, 100 * (this->blocks_correct - old_correct) / (this->blocks_attempted - old_attempted),
-				50 * (this->blocks_correct - old_correct) / this->orig->num_blocks());
+				this->blocks_correct - old_correct, 50 * (this->blocks_correct - old_correct) / this->orig->num_blocks(),
+				100 * (this->blocks_correct - old_correct) / (this->blocks_attempted - old_attempted));
 		}
 	return this;
 }

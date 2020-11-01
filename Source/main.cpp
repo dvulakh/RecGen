@@ -24,7 +24,7 @@ int main() {
 	//*/
 	/*
 	//auto ped = poisson_pedigree(100, 6, 3, 15).build();
-	auto ped = poisson_pedigree(100, 5, 3, 4).build();
+	auto ped = poisson_pedigree(10, 5, 2, 4).build();
 	cout << ped->dump() << endl;
 	cout << ped->dump_extant() << endl;
 	auto ped2 = poisson_pedigree::recover_dumped(ped->dump_extant(), new poisson_pedigree());
@@ -33,9 +33,9 @@ int main() {
 	auto rg = new rec_gen_basic(ped2);
 	cout << ped2->dump_extant() << endl;
 	rg->apply_rec_gen();
-	cout << rg->get_pedigree()->dump() << endl;
+	cout << endl << rg->get_pedigree()->dump() << endl;
 	auto diff = (new tree_diff_basic(ped, ped2))->topology_biject()->blocks_check();
-	printf("\nNodes correct:    %d/%d (%d%%)\nEdges correct:    %d/%d (%d%%)\nBlocks attempted: %d/%d (%d%%)\nBlocks correct:   %d/%d (%d%%/%d%%)\n",
+	printf("\nNodes correct:    %d/%d \t(%d%%)\nEdges correct:    %d/%d\t(%d%%)\nBlocks attempted: %d/%d\t(%d%%)\nBlocks correct:   %d/%d\t(%d%%/%d%%)\n",
 		diff->nodes_correct, diff->nodes_total, 100 * diff->nodes_correct / diff->nodes_total,
 		diff->edges_correct, diff->edges_total, 100 * diff->edges_correct / diff->edges_total,
 		diff->blocks_attempted, diff->blocks_total, 100 * diff->blocks_attempted / diff->blocks_total,
