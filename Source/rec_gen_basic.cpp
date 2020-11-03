@@ -65,7 +65,7 @@ void rec_gen_basic::assign_parents(rec_gen::hypergraph* GARG)
 	/// Advance to next generation
 	this->ped->new_grade();
 	/// Repeatedly grab cliques and create parents for them
-	std::set<coupled_node*> clique = G->extract_clique();
+	std::set<coupled_node*> clique = G->extract_clique(d);
 	DPRINTF("Got a clique of size %d", clique.size());
 	while (clique.size() >= d) {
 		/// Create a new couple
@@ -83,7 +83,7 @@ void rec_gen_basic::assign_parents(rec_gen::hypergraph* GARG)
 		TRIPLE_IT(clique)
 			G->erase_edge({ *u, *v, *w });
 		/// Get the next clique
-		clique = G->extract_clique();
+		clique = G->extract_clique(d);
 		DPRINTF("Got a clique of size %d", clique.size());
 	}
 }
@@ -191,42 +191,59 @@ void rec_gen_basic::hypergraph_basic::erase_edge(edge_basic e)
 }
 
 // Extract a maximal hypergraph clique
-/// This method is naive recursive B&B implementation, but the author does not know
-/// of polynomial-time algorithms for this task
-void rec_gen_basic::hypergraph_basic::construct_best_clique_BB(
-		std::map<coupled_node*, std::set<edge_basic>>::iterator it, int depth)
+/// Return whether vertex can be added to current clique
+bool rec_gen_basic::hypergraph_basic::cliquable(coupled_node* vrt)
 {
-	/// Check if a new best clique has been reached
-	if (this->clique.size() > this->best_clique.size())
-		this->best_clique = this->clique;
-	/// Make sure the iterator is valid
-	if (it == this->vert.end())
-		return;
-	/// Apply B&B -- if no possible clique reachable form this point is better than
-	/// the one we have found so far, backtrack
-	if (this->clique.size() + this->vert.size() - depth <= this->best_clique.size())
-		return;
-	/// Try not adding the the current vertex
-	this->construct_best_clique_BB(std::next(it), depth + 1);
-	/// See if it is possible to add the current vertex -- check all distinct pairs
-	/// u, v already in the clique for hyperedges
 	for (auto u = clique.begin(); u != clique.end(); u++)
 		for (auto v = std::next(u); v != clique.end(); v++)
-			if (this->adj.find(edge_basic({ *u, *v, it->first })) == this->adj.end())
-				return;
-	/// Try adding the current vertex
-	this->clique.insert(it->first);
-	this->construct_best_clique_BB(std::next(it), depth + 1);
-	/// Don't forget to remove before returning
-	this->clique.erase(it->first);
+			if (this->adj.find(edge_basic({ *u, *v, vrt })) == this->adj.end())
+				return false;
+	return true;
 }
-/// Do some setup and call the recursive B&B implementation
-std::set<coupled_node*> rec_gen_basic::hypergraph_basic::extract_clique()
+/// Find a clique of size d, if one exists
+rec_gen_basic::hypergraph_basic* rec_gen_basic::hypergraph_basic::find_d_clique(
+	std::map<coupled_node*, std::set<edge_basic>>::iterator it, int d)
 {
-	/// Reset cliques
-	this->clique = this->best_clique = std::set<coupled_node*>();
+	/// If there is already a clique of the necessary size, terminate
+	if (this->clique.size() >= d)
+		return this;
+	/// Make sure the iterator is valid
+	if (it == this->vert.end())
+		return this;
+	/// Try adding the current vertex
+	if (this->cliquable(it->first)) {
+		this->clique.insert(it->first);
+		this->find_d_clique(std::next(it), d);
+		/// Check whether resulting clique is satisfactory
+		if (this->clique.size() >= d)
+			return this;
+		this->clique.erase(it->first);
+	}
+	/// If no d-size clique found, try adding the next vertex
+	this->find_d_clique(std::next(it), d);
+	return this;
+}
+/// Augment current clique so that it is maximal
+rec_gen_basic::hypergraph_basic* rec_gen_basic::hypergraph_basic::augment_clique(
+	std::map<coupled_node*, std::set<edge_basic>>::iterator it)
+{
+	/// Make sure the iterator is valid
+	if (it == this->vert.end())
+		return this;
+	/// Try adding the current vertex
+	if (this->cliquable(it->first))
+		this->clique.insert(it->first);
+	/// See if any other vertices can be added
+	this->augment_clique(std::next(it));
+	return this;
+}
+/// Do some setup and call the recursive implementation
+std::set<coupled_node*> rec_gen_basic::hypergraph_basic::extract_clique(int d)
+{
+	/// Reset clique
+	this->clique = std::set<coupled_node*>();
 	/// Run recursion
-	this->construct_best_clique_BB(this->vert.begin(), 0);
-	/// Return best clique
-	return this->best_clique;
+	this->find_d_clique(this->vert.begin(), d)->augment_clique(this->vert.begin());
+	/// Return clique
+	return this->clique;
 }

@@ -10,7 +10,7 @@
 #include "tree_diff.h"
 
 // Default accuracy of child correspondences necessary to identify parent
-#define DEFAULT_CH_ACC 0.5
+#define DEFAULT_CH_ACC 0.49
 
 // The tree_diff abstract class defines the operations that the checking
 // program needs to support to assess rec_gen accuracy
@@ -23,8 +23,8 @@ protected:
 	virtual tree_diff* biject_extant();
 	// Attempt to find same node in reconstructed tree based on children
 	// (assumes previous generation already bijected)
-	// Returns whether a match node was found
-	virtual bool biject_parent(coupled_node* v);
+	// Returns number of matching children (0 if no match)
+	virtual int biject_parent(coupled_node* v);
 public:
 	// Constructors
 	/// Given two trees

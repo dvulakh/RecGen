@@ -24,7 +24,7 @@ tree_diff* tree_diff_basic::biject_extant()
 
 // Attempt to find same node in reconstructed tree based on children
 // (assumes previous generation already bijected)
-bool tree_diff_basic::biject_parent(coupled_node* v)
+int tree_diff_basic::biject_parent(coupled_node* v)
 {
 	WPRINTF("Searching for image of %lldo in reconstructed pedigree", v->get_id());
 	/// Best match: node pointer and number of correct children
@@ -42,7 +42,7 @@ bool tree_diff_basic::biject_parent(coupled_node* v)
 	};
 	/// Loop through reconstructed children
 	for (coupled_node* ch : *this->recon)
-		if (this->re_to_or[ch]) {
+		if (this->re_to_or[ch] && v->is_child(this->re_to_or[ch])) {
 			/// Try both parents
 			insert_to_pars((*ch)[0]->parent());
 			if ((*ch)[0] != (*ch)[1])
@@ -51,20 +51,20 @@ bool tree_diff_basic::biject_parent(coupled_node* v)
 	/// Find the best candidate
 	for (std::pair<coupled_node*, int> par : par_count)
 		/// Make sure candidate satisfies minimum accuracy specs
-		if (par.second >= this->ch_acc * v->num_ch() &&
-			par.second >= this->ch_acc * par.first->num_ch() &&
+		if (par.second > this->ch_acc * v->num_ch() &&
+			par.second > this->ch_acc * par.first->num_ch() &&
 			/// Make sure candidate is unclaimed
-			this->re_to_or.find(par.first) == this->re_to_or.end() &&
+			(this->re_to_or.find(par.first) == this->re_to_or.end() || !this->re_to_or[par.first]) &&
 			/// Make sure candidate is better than the current best
 			par.second > num_match)
 			/// Update best
 			best = par.first, num_match = par.second;
 	/// If no candidates, fail
 	if (!best)
-		return false;
+		return 0;
 	/// If found a suitable candidate, insert
 	this->biject(v, best);
-	return true;
+	return num_match;
 }
 
 // Try to find a bijection between the topologies of the trees (return self)
@@ -92,6 +92,7 @@ tree_diff* tree_diff_basic::topology_biject()
 			/// Add number of edges
 			ADD_TO_BUCKET(edges_total, par.second->num_ch());
 			/// Try to find a match for the parent
+			//ADD_TO_BUCKET(edges_correct, this->biject_parent(par.second));
 			if (this->biject_parent(par.second)) {
 				/// Increment successful bijections
 				ADD_TO_BUCKET(nodes_correct, 1);

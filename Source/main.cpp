@@ -22,9 +22,9 @@ int main() {
 	getline (fin2, s, (char)fin2.eof());
 	auto ped = poisson_pedigree::recover_dumped(s, new poisson_pedigree());
 	//*/
-	//*
+	//*/
 	auto ped = poisson_pedigree(100, 6, 4, 15).build();
-	//auto ped = poisson_pedigree(10, 5, 3, 10).build();
+	//auto ped = poisson_pedigree(10, 5, 3, 4).build();
 	cout << ped->dump() << endl;
 	cout << ped->dump_extant() << endl;
 	auto ped2 = poisson_pedigree::recover_dumped(ped->dump_extant(), new poisson_pedigree());

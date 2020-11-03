@@ -68,19 +68,22 @@ public:
 		std::map<coupled_node*, std::set<edge_basic>> vert;
 		/// Adjacency map -- set of all edges and their multiplicities
 		std::map<edge_basic, int> adj;
-		/// Best clique found
-		std::set<coupled_node*> best_clique;
 		/// Clique currently under construction
 		std::set<coupled_node*> clique;
-		// Recursively build best clique
-		void construct_best_clique_BB(std::map<coupled_node*, std::set<edge_basic>>::iterator it, int depth);
+		// Recursively build a maximal clique
+		hypergraph_basic* augment_clique(std::map<coupled_node*, std::set<edge_basic>>::iterator it);
+		// Add d more elementa to the current clique
+		hypergraph_basic* find_d_clique(std::map<coupled_node*, std::set<edge_basic>>::iterator it, int d);
+		// Check whether vertex can be added to clique
+		bool cliquable(coupled_node* vrt);
 	public:
 		// Constructor
 		hypergraph_basic();
 		// Inherited methods
 		virtual void insert_edge(edge_basic e);
 		virtual void erase_edge(edge_basic e);
-		virtual std::set<coupled_node*> extract_clique();
+		// Extracts an arbitrary maximal clique of size at least
+		virtual std::set<coupled_node*> extract_clique(int d);
 	};
 protected:
 	// Reconstruct the genetic material of top-level coupled node v (returns v)

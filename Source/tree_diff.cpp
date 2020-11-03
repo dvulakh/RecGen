@@ -53,7 +53,7 @@ tree_diff* tree_diff::blocks_check()
 				DPRINTF("Comparing blocks in pair (%lldo -> %lldr): %d (%d%%) attempted; %d (%d%%/%d%%) correct", bi.first->get_id(), bi.second->get_id(),
 					this->blocks_attempted - old_attempted, 50 * (this->blocks_attempted - old_attempted) / this->orig->num_blocks(),
 					this->blocks_correct - old_correct, 50 * (this->blocks_correct - old_correct) / this->orig->num_blocks(),
-					100 * (this->blocks_correct - old_correct) / (this->blocks_attempted - old_attempted));
+					100 * (this->blocks_correct - old_correct) / std::max(1, this->blocks_attempted - old_attempted));
 			}
 		}
 	}
