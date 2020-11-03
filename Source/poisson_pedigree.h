@@ -194,6 +194,7 @@ public:
 	int num_blocks();
 	int num_child();
 	int num_grade();
+	int cur_grade();
 	int size();
 	// Adding and accessing coupled nodes in grades
 	/// Reset the current grade pointer to zero (returns self)

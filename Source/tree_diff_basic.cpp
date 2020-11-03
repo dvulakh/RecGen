@@ -81,7 +81,7 @@ tree_diff* tree_diff_basic::topology_biject()
 		/// Advance to next grade
 		this->orig->next_grade();
 		/// Add parents in this generation to vector and sort by number of children
-		this->nodes_total += this->orig->size();
+		ADD_TO_BUCKET(nodes_total, this->orig->size());
 		std::vector<std::pair<int, coupled_node*>> pars(this->orig->size());
 		int i = 0;
 		for (coupled_node* par : *this->orig)
@@ -90,14 +90,14 @@ tree_diff* tree_diff_basic::topology_biject()
 		/// Find parent bijections
 		for (std::pair<int, coupled_node*> par : pars) {
 			/// Add number of edges
-			this->edges_total += par.second->num_ch();
+			ADD_TO_BUCKET(edges_total, par.second->num_ch());
 			/// Try to find a match for the parent
 			if (this->biject_parent(par.second)) {
 				/// Increment successful bijections
-				this->nodes_correct++;
+				ADD_TO_BUCKET(nodes_correct, 1);
 				/// Count correct edges
 				for (individual_node* ch : *par.second)
-					this->edges_correct += this->or_to_re[par.second]->is_child(this->or_to_re[ch->couple()]);
+					ADD_TO_BUCKET(edges_correct, this->or_to_re[par.second]->is_child(this->or_to_re[ch->couple()]));
 			}
 		}
 		/// Advance to next grade

@@ -199,8 +199,9 @@ bool coupled_node::is_child(individual_node* other)
 /// Query for a coupled node
 bool coupled_node::is_child(coupled_node* other)
 {
+	/// NULL is not a child
 	/// A coupled node is a child if either of its members is
-	return this->is_child((*other)[0]) || this->is_child((*other)[1]);
+	return other && (this->is_child((*other)[0]) || this->is_child((*other)[1]));
 }
 /// Query for number of children
 int coupled_node::num_ch() { return this->children.size(); }
@@ -381,6 +382,7 @@ poisson_pedigree::poisson_pedigree()
 int poisson_pedigree::num_blocks() { return this->genome_len; }
 int poisson_pedigree::num_child() { return this->tfr; }
 int poisson_pedigree::num_grade() { return this->num_gen; }
+int poisson_pedigree::cur_grade() { return this->cur_gen; }
 int poisson_pedigree::size() { return this->grades[this->cur_gen].size(); }
 
 // Adding and accessing coupled nodes in grades

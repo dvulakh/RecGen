@@ -15,6 +15,9 @@
 #include <unordered_map>
 #include <string>
 
+// Help with counting statistics in both total and per-generation buckets
+#define ADD_TO_BUCKET(arr, val) arr += val, arr##_gen[this->orig->cur_grade()] += val
+
 // The tree_diff abstract class defines the operations that the checking
 // program needs to support to assess rec_gen accuracy
 class tree_diff
@@ -41,11 +44,16 @@ public:
 	/// A full diff string
 	std::string full_diff;
 	/// Total number of nodes in orig tree, number correctly reconstructed
+	int *nodes_total_gen = 0, *nodes_correct_gen = 0;
 	int nodes_total, nodes_correct;
 	/// Total number of edges in orig tree, number correctly reconstructed
+	int *edges_total_gen = 0, *edges_correct_gen = 0;
 	int edges_total, edges_correct;
 	/// Total number of blocks in orig tree, number attempted/correct
+	int *blocks_total_gen = 0, *blocks_attempted_gen = 0, *blocks_correct_gen = 0;
 	int blocks_total, blocks_attempted, blocks_correct;
+	/// Format a family of 7 ints into a statistics string
+	static std::string stats_fmt(int node_t, int node_c, int edge_t, int edge_c, int block_t, int block_a, int block_c);
 	// Try to find a bijection between the topologies of the trees (return self)
 	virtual tree_diff* topology_biject() { return this; }
 	// Check accuracy of assigned blocks once bijection is known (return self)

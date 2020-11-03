@@ -48,6 +48,8 @@ void rec_gen::init(poisson_pedigree* ped, std::string work_log, std::string data
 	this->ped = ped;
 	this->work_path = work_log;
 	this->data_path = data_log;
+	this->work_log = NULL;
+	this->data_log = NULL;
 	this->sib = sib;
 	this->rec = rec;
 	this->d = d;
@@ -59,9 +61,9 @@ void rec_gen::init()
 {
 	/// Open files
 	if (IS(LOG_WORK))
-		this->work_log = std::fopen(this->work_path.c_str(), "w");
+		delete this->work_log, this->work_log = std::fopen(this->work_path.c_str(), "w");
 	if (IS(LOG_DATA))
-		this->data_log = std::fopen(this->data_path.c_str(), "w");
+		delete this->data_log, this->data_log = std::fopen(this->data_path.c_str(), "w");
 }
 /// Construct given all info
 rec_gen::rec_gen(poisson_pedigree* ped, std::string work_log, std::string data_log, double sib, double rec, int d, long long settings)
