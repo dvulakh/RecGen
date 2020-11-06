@@ -299,7 +299,7 @@ void poisson_pedigree::init(int genome_len, int tfr, int num_gen,
 	this->tfr = tfr;
 	this->num_gen = num_gen;
 	this->cur_gen = -1;
-	this->grades = grades;
+	this->grades = grades ? grades : new std::unordered_set<coupled_node*>[num_gen];
 	this->pop_sz = pop_sz;
 }
 
@@ -376,7 +376,7 @@ poisson_pedigree::poisson_pedigree(int genome_len, int tfr, int num_gen, int pop
 
 // Default constructor
 poisson_pedigree::poisson_pedigree()
-{ init(1, 1, 1, 1, NULL); }
+{ init(10, 3, 3, 10, NULL); }
 
 // Statistic accessors
 int poisson_pedigree::num_blocks() { return this->genome_len; }

@@ -27,8 +27,8 @@ public:
 		virtual void erase_edge(edge e) {}
 		virtual std::set<coupled_node*> extract_clique(int d) {}
 	};
+MAKE_LOGGABLE
 protected:
-	MAKE_LOGGABLE
 	// Internal pedigree
 	poisson_pedigree* ped;
 	// Reconstruct the genetic material of top-level coupled node v (returns v)
@@ -51,9 +51,13 @@ public:
 	/// Given all
 	rec_gen(poisson_pedigree* ped, std::string work_log, std::string data_log, double sib, double rec, int d, long long settings);
 	// Initialize post-construction -- important if parameters like filenames changed since construction
-	void init();
+	rec_gen* init();
 	// Access pedigree
 	poisson_pedigree* get_pedigree();
+	// Mutators
+	rec_gen* set_sib(double sib);
+	rec_gen* set_rec(double rec);
+	rec_gen* set_d(int d);
 	// Rebuild (returns reconstructed pedigree)
 	virtual poisson_pedigree* apply_rec_gen();
 };

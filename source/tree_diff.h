@@ -22,8 +22,8 @@
 // program needs to support to assess rec_gen accuracy
 class tree_diff
 {
+MAKE_LOGGABLE
 protected:
-	MAKE_LOGGABLE
 	// The trees being compared
 	poisson_pedigree *orig, *recon;
 	// The bijection representing the topology

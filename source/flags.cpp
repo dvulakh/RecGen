@@ -84,10 +84,9 @@ int flag_reader::read_flags(int narg, std::vector<std::string> args)
 int flag_reader::read_flags(int narg, char** args)
 {
 	std::vector<std::string> argv;
-	argv.reserve(narg);
 	for (int i = 1; i < narg; i++)
-		argv[i] = std::string(args[i]);
-	return this->read_flags(narg, argv);
+		argv.push_back(std::string(args[i]));
+	return this->read_flags(narg - 1, argv);
 }
 
 // Make a vector and send to the reader
