@@ -35,6 +35,8 @@ public:
 	tree_diff(orig, recon, work_log, data_log, settings) { this->ch_acc = ch_acc; }
 	// Try to find a bijection between the topologies of the trees (return self)
 	virtual tree_diff* topology_biject();
+	// Mutator
+	tree_diff_basic* set_ch_acc(double ch_acc);
 };
 
 #endif

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+STOP_CHAR='~'
+
+start=false
+while read l; do
+	[ "$start" = true ] && echo "$l"
+	[ "$l" = "$STOP_CHAR" ] && start=true
+done
+echo $STOP_CHAR

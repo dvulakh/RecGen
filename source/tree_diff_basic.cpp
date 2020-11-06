@@ -107,3 +107,7 @@ tree_diff* tree_diff_basic::topology_biject()
 	/// Return self
 	return this;
 }
+
+// Child accuracy threshold mutator
+tree_diff_basic* tree_diff_basic::set_ch_acc(double ch_acc)
+{ this->ch_acc = ch_acc; return this; }

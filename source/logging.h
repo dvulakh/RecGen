@@ -33,9 +33,22 @@
 
 // Include the necessary members
 #define MAKE_LOGGABLE \
+protected: \
 std::string work_path, data_path; \
 std::FILE *work_log, *data_log; \
 std::chrono::high_resolution_clock::time_point start_time; \
+public: \
+void set_work_path(std::string work_path) { this->work_path = work_path; } \
+void set_data_path(std::string data_path) { this->data_path = data_path; } \
 long long settings;
+
+// Logging command-line flags
+#define LOG_FLAG_READ(flg_rd, logger) \
+fr.add_flag("verbose", 'v', 0, [&](std::vector<std::string> v, void* p) { logger->settings |= VER_WORK | VER_DATA; }); \
+fr.add_flag("dataf", 'D', 1, [&](std::vector<std::string> v, void* p) { logger->set_data_path(v[0]); }); \
+fr.add_flag("workf", 'W', 1, [&](std::vector<std::string> v, void* p) { logger->set_work_path(v[0]); }); \
+fr.add_flag("data", 'd', 0, [&](std::vector<std::string> v, void* p) { logger->settings |= LOG_DATA | VER_DATA, logger->settings &= ~(LOG_WORK | VER_WORK); }); \
+fr.add_flag("work", 'w', 0, [&](std::vector<std::string> v, void* p) { logger->settings |= LOG_WORK | VER_WORK, logger->settings &= ~(LOG_DATA | VER_DATA); }); \
+fr.add_flag("silent", 's', 0, [&](std::vector<std::string> v, void* p) { logger->settings &= ~(LOG_DATA | LOG_WORK | VER_DATA | VER_WORK); }); \
 
 #endif

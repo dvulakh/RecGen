@@ -38,6 +38,7 @@ coupled_node* rec_gen_basic::collect_symbols(coupled_node* par)
 }
 
 // Perform statistical tests to detect siblinghood (returns hypergraph)
+/// Currently considers all vertices, not just those with 99% rebuilt genomes
 rec_gen::hypergraph* rec_gen_basic::test_siblinghood()
 {
 	/// Make a new graph

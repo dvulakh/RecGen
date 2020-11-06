@@ -57,20 +57,26 @@ void rec_gen::init(poisson_pedigree* ped, std::string work_log, std::string data
 	this->init();
 }
 /// Initialize based on current members
-void rec_gen::init()
+rec_gen* rec_gen::init()
 {
 	/// Open files
 	if (IS(LOG_WORK))
 		delete this->work_log, this->work_log = std::fopen(this->work_path.c_str(), "w");
 	if (IS(LOG_DATA))
 		delete this->data_log, this->data_log = std::fopen(this->data_path.c_str(), "w");
+	return this;
 }
 /// Construct given all info
 rec_gen::rec_gen(poisson_pedigree* ped, std::string work_log, std::string data_log, double sib, double rec, int d, long long settings)
 { init(ped, work_log, data_log, sib, rec, d, settings); }
 /// Construct given pedigree
 rec_gen::rec_gen(poisson_pedigree* ped)
-{ init(ped, "rec-gen.log", "rec-gen.dat", DEFAULT_SIB, DEFAULT_REC, DEFAULT_D, ~0); }
+{ init(ped, "rec-gen.log", "rec-gen.dat", DEFAULT_SIB, DEFAULT_REC, DEFAULT_D, 0); }
 
 // Access pedigree
 poisson_pedigree* rec_gen::get_pedigree() { return this->ped; }
+
+// Mutators
+rec_gen* rec_gen::set_sib(double sib) { this->sib = sib; return this; }
+rec_gen* rec_gen::set_rec(double rec) { this->rec = rec; return this; }
+rec_gen* rec_gen::set_d(int d) {this->d = d; return this; }
