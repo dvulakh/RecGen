@@ -1,0 +1,57 @@
+#!/bin/bash
+
+## DEFAULT VALUES
+
+# Pedigree info
+T_DEF=3
+N_DEF=10
+B_DEF=100
+A_DEF=7
+
+# REC-GEN Info
+TMP_FILE='.temp_recgen_file'
+R_VERB=Y
+S_DEF=0.21
+
+# Tree diff info
+T_VERB=Y
+C_DEF=0.49
+
+## CREATE A NEW PEDIGREE
+
+# Take input
+echo "Preparing to generate new pedigree... "
+read -p "Number of generations [$T_DEF]:   " T
+T=${T:-$T_DEF}
+read -p "Founding individuals  [$N_DEF]:  " N
+N=${N:-$N_DEF}
+read -p "Number of blocks      [$B_DEF]: " B
+B=${B:-$B_DEF}
+read -p "Fertility rate alpha  [$A_DEF]:   " A
+A=${A:-$A_DEF}
+
+# Create pedigree
+PED=$(bin/mkped -TNBA $T $N $B $A)
+read -p "Done. Print pedigree? [y/N]: " p
+p=${p:-N}
+if [[ $p =~ [yY](es|ES)? ]]; then echo "$PED"; fi
+
+## RUN REC-GEN
+
+# Take input
+read -p "Verbose output?       [Y/n]: " v
+v=${v:-Y}
+
+# Run REC-GEN
+if [[ $v =~ [yY](es|ES)? ]]; then
+	V='-v'
+	echo "$PED" | bin/recgen $V | tee $TMP_FILE | grep -v '-'
+	REC=$(awk '/DONE/,EOF' $TMP_FILE | tail -n +2)
+else
+	REC=$(echo "$PED" | bin/recgen -S $S_DEF)
+fi
+
+## RUN TREE-DIFF
+
+PED=$(echo "$PED" | ./chop_ped)
+echo "$PED $REC" | bin/treediff $V
