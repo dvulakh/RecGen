@@ -39,19 +39,25 @@ if [[ $p =~ [yY](es|ES)? ]]; then echo "$PED"; fi
 ## RUN REC-GEN
 
 # Take input
+echo "Preparing to run REC-GEN... "
 read -p "Verbose output?       [Y/n]: " v
 v=${v:-Y}
 
 # Run REC-GEN
 if [[ $v =~ [yY](es|ES)? ]]; then
 	V='-v'
-	echo "$PED" | bin/recgen $V | tee $TMP_FILE | grep -v '-'
+	echo "$PED" | bin/recgen $V -s $S_DEF | tee $TMP_FILE | grep -v '-'
 	REC=$(awk '/DONE/,EOF' $TMP_FILE | tail -n +2)
 else
 	REC=$(echo "$PED" | bin/recgen -S $S_DEF)
 fi
+read -p "Done. Print pedigree? [y/N]: " r
+r=${r:-N}
+if [[ $r =~ [yY](es|ES)? ]]; then echo "$REC"; fi
+
 
 ## RUN TREE-DIFF
 
 PED=$(echo "$PED" | ./chop_ped)
-echo "$PED $REC" | bin/treediff $V
+echo "$PED"$'\n'"$REC" | bin/treediff $V
+if [[ ! -z $V ]]; then rm "$TMP_FILE"; fi

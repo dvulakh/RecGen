@@ -92,7 +92,6 @@ tree_diff* tree_diff_basic::topology_biject()
 			/// Add number of edges
 			ADD_TO_BUCKET(edges_total, par.second->num_ch());
 			/// Try to find a match for the parent
-			//ADD_TO_BUCKET(edges_correct, this->biject_parent(par.second));
 			if (this->biject_parent(par.second)) {
 				/// Increment successful bijections
 				ADD_TO_BUCKET(nodes_correct, 1);

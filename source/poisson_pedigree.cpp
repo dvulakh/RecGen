@@ -533,21 +533,21 @@ poisson_pedigree* poisson_pedigree::recover_dumped(std::string dump_out, poisson
 		for (individual_node* indiv : indivs)
 			ped->add_to_current(indiv->mate_with(indiv));
 	}
-	// Otherwise, find the founders and rebuild the tree
+	// Otherwise, find the extant population and rebuild the tree
 	else {
-		/// Set current generation to founders
-		ped->cur_gen = ped->num_gen - 1;
-		/// Founders are their own parents
+		/// Set current generation to extant
+		ped->reset();
+		/// Extant is self-coupled
 		for (coupled_node* couple : coups)
-			if ((*couple)[0]->parent() == couple)
+			if ((*couple)[0] == (*couple)[1])
 				ped->add_to_current(couple);
-		/// Add the descendants
-		ped->cur_gen--;
-		while (ped->cur_gen >= 0) {
-			for (coupled_node* couple : (*ped)[ped->cur_gen + 1])
-				for (individual_node* ch : *couple)
-					ped->add_to_current(ch->couple());
-			ped->cur_gen--;
+		/// Add the ancestors
+		while (ped->cur_gen < ped->num_gen - 1) {
+			ped->new_grade();
+			for (coupled_node* couple : (*ped)[ped->cur_gen - 1])
+				for (int i = 0; i < 2; i++)
+					if ((*couple)[i]->parent() && ped->grades[ped->cur_gen].find((*couple)[i]->parent()) == ped->end())
+						ped->add_to_current((*couple)[i]->parent());
 		}
 	}
 	return ped;
