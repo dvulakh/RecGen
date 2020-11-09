@@ -46,7 +46,7 @@ v=${v:-Y}
 # Run REC-GEN
 if [[ $v =~ [yY](es|ES)? ]]; then
 	V='-v'
-	echo "$PED" | bin/recgen $V -s $S_DEF | tee $TMP_FILE | grep -v '-'
+	echo "$PED" | bin/recgen $V -S $S_DEF | tee $TMP_FILE | grep -v '-'
 	REC=$(awk '/DONE/,EOF' $TMP_FILE | tail -n +2)
 else
 	REC=$(echo "$PED" | bin/recgen -S $S_DEF)
