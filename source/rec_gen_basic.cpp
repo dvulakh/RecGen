@@ -19,7 +19,7 @@ coupled_node* rec_gen_basic::collect_symbols(coupled_node* par)
 
 	/// For all triples of immediate children of the parent couple
 	TRIPLE_IT(*par)
-		/// For all triples of distinct descendants of those childrenhs
+		/// For all triples of distinct descendants of those children
 		for (auto x : (*u)->couple()->extant_desc())
 		for (auto y : (*v)->couple()->extant_desc())
 		for (auto z : (*w)->couple()->extant_desc())
@@ -189,6 +189,17 @@ void rec_gen_basic::hypergraph_basic::erase_edge(edge_basic e)
 				this->adj.erase(ve);
 			this->vert.erase(v);
 		}
+}
+
+// Check whether an edge is in the hypergraph
+bool rec_gen_basic::hypergraph_basic::query_edge(edge_basic e)
+{
+	/// Try to find an arbitrary vertex
+	auto v_it = this->vert.find(e.a);
+	if (v_it == this->vert.end())
+		return false;
+	/// Look up the edge in this vertex's edges
+	return v_it->second.find(e) != v_it->second.end();
 }
 
 // Extract a maximal hypergraph clique

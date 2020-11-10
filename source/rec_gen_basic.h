@@ -24,11 +24,10 @@ public:
 		// Edge class
 		class edge_basic
 		{
-		protected:
+		public:
 			// Couples contained in edge
 			/// Internally sort by id so that a < b < c
 			coupled_node *a, *b, *c;
-		public:
 			// Constructor
 			/// Construct with initializer list
 			edge_basic(std::initializer_list<coupled_node*> vert);
@@ -82,6 +81,7 @@ public:
 		// Inherited methods
 		virtual void insert_edge(edge_basic e);
 		virtual void erase_edge(edge_basic e);
+		virtual bool query_edge(edge_basic e);
 		// Extracts an arbitrary maximal clique of size at least
 		virtual std::set<coupled_node*> extract_clique(int d);
 	};

@@ -25,6 +25,7 @@ public:
 		class edge {};
 		virtual void insert_edge(edge e) {}
 		virtual void erase_edge(edge e) {}
+		virtual bool query_edge(edge e) {}
 		virtual std::set<coupled_node*> extract_clique(int d) {}
 	};
 MAKE_LOGGABLE

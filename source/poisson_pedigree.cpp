@@ -172,7 +172,7 @@ individual_node*& coupled_node::operator[](int index)
 // Manipulate genes
 /// Query whether a member of the couple has gene g in block b
 bool coupled_node::has_gene(int b, gene g)
-{ return (*(*this)[0])[b] == g || (*(*this)[1])[b] == g; }
+{ return g && ((*(*this)[0])[b] == g || (*(*this)[1])[b] == g); }
 /// Insert a gene to an unassigned couple member
 gene coupled_node::insert_gene(int b, gene g)
 { return ((*(*this)[0])[b] ? *(*this)[1] : *(*this)[0])[b] = g; }
