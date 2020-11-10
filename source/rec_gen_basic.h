@@ -82,6 +82,7 @@ public:
 		virtual void insert_edge(edge_basic e);
 		virtual void erase_edge(edge_basic e);
 		virtual bool query_edge(edge_basic e);
+		virtual int num_edge();
 		// Extracts an arbitrary maximal clique of size at least
 		virtual std::set<coupled_node*> extract_clique(int d);
 	};

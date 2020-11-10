@@ -44,6 +44,7 @@ coupled_node* rec_gen_quadratic::collect_symbols(coupled_node* par)
 			else if (num_block_appear[g] > c2)
 				g2 = g, c2 = num_block_appear[g];
 		/// Add those genes
+		DPRINTF("For couple %lld at position %d found genes %lld and %lld (frequency: %d %d)", par->get_id(), b, g1, g2, c1, c2)
 		par->insert_gene(b, g1);
 		par->insert_gene(b, g2);
 	}
@@ -58,7 +59,7 @@ rec_gen::hypergraph* rec_gen_quadratic::test_siblinghood()
 	/// Make a new graph
 	rec_gen_quadratic::hypergraph_basic* G = new hypergraph_basic();
 	/// Iterate over all pairs, inserting pairs that may form a triple into linked list
-	DPRINT("Finding candidate pairs");
+	WPRINT("Finding candidate pairs")
 	std::list<std::pair<coupled_node*, coupled_node*>> sib_cand;
 	for (auto it = ped->begin(); it != ped->end(); it++)
 		for (auto jt = std::next(it); jt != ped->end(); jt++) {
@@ -67,10 +68,13 @@ rec_gen::hypergraph* rec_gen_quadratic::test_siblinghood()
 			for (int i = 0; i < this->ped->num_blocks(); i++)
 				shared_blocks += (*jt)->has_gene(i, (*(**it)[0])[i]) || (*jt)->has_gene(i, (*(**it)[1])[i]);
 			/// If the number of shared blocks is high enough, insert to candidates
-			if (shared_blocks >= this->sib * this->ped->num_blocks())
+			if (shared_blocks >= this->sib * this->ped->num_blocks()) {
+				DPRINTF("Found candidate pair (%lld, %lld): %d/%d (%d%%) blocks shared", (*it)->get_id(), (*jt)->get_id(),
+					shared_blocks, this->ped->num_blocks(), 100 * shared_blocks / this->ped->num_blocks())
 				sib_cand.emplace_back(*it, *jt);
+			}
 		}
-	DPRINTF("Found %d candidate pairs; completing triples", sib_cand.size());
+	WPRINTF("Found %lld candidate pairs (out of %lld); completing triples", sib_cand.size(), (long long)this->ped->size() * (this->ped->size() - 1) / 2)
 	/// For each pair, try to find a third element that completes the triple
 	for (std::pair<coupled_node*, coupled_node*> pcc : sib_cand)
 		for (coupled_node* coup : *this->ped)
@@ -81,12 +85,15 @@ rec_gen::hypergraph* rec_gen_quadratic::test_siblinghood()
 				int shared_blocks = 0;
 				for (int i = 0; i < this->ped->num_blocks(); i++)
 					shared_blocks += (v->has_gene(i, (*(*u)[0])[i]) && w->has_gene(i, (*(*u)[0])[i])) ||
-									 (v->has_gene(i, (*(*u)[1])[i]) && w->has_gene(i, (*(*u)[1])[i]));
+						(v->has_gene(i, (*(*u)[1])[i]) && w->has_gene(i, (*(*u)[1])[i]));
 				/// If the number of shared blocks is high enough, insert a hyperedge
-				if (shared_blocks >= this->sib * this->ped->num_blocks())
+				if (shared_blocks >= this->sib * this->ped->num_blocks()) {
+					DPRINTF("Inserting hypergraph edge (%lld, %lld, %lld): %d/%d (%d%%) blocks shared", u->get_id(), v->get_id(), w->get_id(),
+			 			shared_blocks, this->ped->num_blocks(), 100 * shared_blocks / this->ped->num_blocks())
 					G->insert_edge({ u, v, w });
-				else DPRINTF("Failed triple completion: %lld %lld %lld", u->get_id(), v->get_id(), w->get_id());
+				}
 			}
+	WPRINTF("Completed siblinghood graph with %lld hyperedges", G->num_edge())
 	/// Return the hypergraph
 	return G;
 }

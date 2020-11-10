@@ -25,11 +25,11 @@ coupled_node* rec_gen_basic::collect_symbols(coupled_node* par)
 		for (auto z : (*w)->couple()->extant_desc())
 			if (x != y && y != z && z != x) {
 				/// For all blocks
-				DPRINTF("Identified extant triple: %lld %lld %lld", x->get_id(), y->get_id(), z->get_id());
+				DPRINTF("Identified extant triple: %lld %lld %lld", x->get_id(), y->get_id(), z->get_id())
 				for (int i = 0; i < this->ped->num_blocks(); i++)
 					/// If there is a shared value in this block, insert it
 					if ((*x)[i] && (*x)[i] == (*y)[i] && (*y)[i] == (*z)[i] && !par->has_gene(i, (*x)[i])) {
-						DPRINTF("Found gene for couple %lld (%lld %lld) at block %d: %lld", par->get_id(), (*par)[0]->get_id(), (*par)[1]->get_id(), i, (*x)[i]);
+						DPRINTF("Found gene for couple %lld (%lld %lld) at block %d: %lld", par->get_id(), (*par)[0]->get_id(), (*par)[1]->get_id(), i, (*x)[i])
 						par->insert_gene(i, (*x)[i]);
 					}
 			}
@@ -67,15 +67,15 @@ void rec_gen_basic::assign_parents(rec_gen::hypergraph* GARG)
 	this->ped->new_grade();
 	/// Repeatedly grab cliques and create parents for them
 	std::set<coupled_node*> clique = G->extract_clique(d);
-	DPRINTF("Got a clique of size %d", clique.size());
+	WPRINTF("Got a clique of size %d", clique.size())
 	while (clique.size() >= d) {
 		/// Create a new couple
 		coupled_node* couple = (new individual_node(this->ped->num_blocks()))->mate_with(new individual_node(this->ped->num_blocks()));
-		DPRINTF("Created new couple %lld (%lld, %lld)", couple->get_id(), (*couple)[0]->get_id(), (*couple)[1]->get_id());
+		DPRINTF("Created new couple %lld (%lld, %lld)", couple->get_id(), (*couple)[0]->get_id(), (*couple)[1]->get_id())
 		/// Add all of the clique elements to the couple's children
 		for (coupled_node* ch : clique) {
 			individual_node* orp = ch->get_orphan();
-			DPRINTF("Attaching child %lld", orp->get_id());
+			DPRINTF("Attaching child %lld", orp->get_id())
 			couple->add_child(orp);
 		}
 		/// Push the couple
@@ -85,7 +85,7 @@ void rec_gen_basic::assign_parents(rec_gen::hypergraph* GARG)
 			G->erase_edge({ *u, *v, *w });
 		/// Get the next clique
 		clique = G->extract_clique(d);
-		DPRINTF("Got a clique of size %d", clique.size());
+		WPRINTF("Got a clique of size %d", clique.size())
 	}
 }
 
@@ -201,6 +201,10 @@ bool rec_gen_basic::hypergraph_basic::query_edge(edge_basic e)
 	/// Look up the edge in this vertex's edges
 	return v_it->second.find(e) != v_it->second.end();
 }
+
+// Query number of edges
+int rec_gen_basic::hypergraph_basic::num_edge()
+{ return this->adj.size(); }
 
 // Extract a maximal hypergraph clique
 /// Return whether vertex can be added to current clique
