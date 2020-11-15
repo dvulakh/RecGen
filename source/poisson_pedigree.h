@@ -176,16 +176,18 @@ protected:
 	int num_gen; /// T in the paper
 	int pop_sz; /// N in the paper
 	int cur_gen; /// The current grade number
+	bool deterministic; /// Setting to true makes all fertilities
+	                    /// exactly alpha
 	/// Grades of nodes are represented as unordered sets
 	std::unordered_set<coupled_node*>* grades;
 	// Private methods
 	/// Initializer method chained from constructors
-	void init(int genome_len, int tfr, int num_gen, int pop_sz,
+	void init(int genome_len, int tfr, int num_gen, int pop_sz, bool deterministic,
 		std::unordered_set<coupled_node*>* grades);
 public:
 	// Constructors
 	/// Given statistics, build a stochastic pedigree
-	poisson_pedigree(int genome_len, int tfr, int num_gen, int pop_sz);
+	poisson_pedigree(int genome_len, int tfr, int num_gen, int pop_sz, bool deterministic);
 	/// Default
 	poisson_pedigree();
 	/// Build pedigree

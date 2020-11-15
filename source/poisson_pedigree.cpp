@@ -179,7 +179,7 @@ gene coupled_node::insert_gene(int b, gene g)
 
 // Get a parentless member of the couple
 individual_node* coupled_node::get_orphan()
-{ return (*this)[0]->parent() == NULL ? (*this)[1] : (*this)[0]; }
+{ return (*this)[0]->parent() == NULL ? (*this)[0] : (*this)[1]; }
 
 // Add a child to this couple's progeny
 individual_node* coupled_node::add_child(individual_node* other)
@@ -292,8 +292,8 @@ coupled_node* coupled_node::recover_dumped(std::string dump_out, coupled_node* c
 /*********************** POISSON PEDIGREE **************************/
 
 // Initialize a pedigree given all information
-void poisson_pedigree::init(int genome_len, int tfr, int num_gen,
-	int pop_sz, std::unordered_set<coupled_node*>* grades)
+void poisson_pedigree::init(int genome_len, int tfr, int num_gen, int pop_sz,
+	bool deterministic, std::unordered_set<coupled_node*>* grades)
 {
 	this->genome_len = genome_len;
 	this->tfr = tfr;
@@ -301,6 +301,7 @@ void poisson_pedigree::init(int genome_len, int tfr, int num_gen,
 	this->cur_gen = -1;
 	this->grades = grades ? grades : new std::unordered_set<coupled_node*>[num_gen];
 	this->pop_sz = pop_sz;
+	this->deterministic = deterministic;
 }
 
 // Build a poisson pedigree (4.1)
@@ -316,6 +317,7 @@ poisson_pedigree* poisson_pedigree::build()
 	std::default_random_engine rng(time(NULL));
 	std::poisson_distribution<int> poiss(this->tfr);
 	std::uniform_real_distribution<double> unif(0, 1);
+	auto generate_fertility = [&](){ return this->deterministic ? this->tfr : poiss(rng); };
 
 	// Generate the founder population
 	this->cur_gen = this->num_gen - 1;
@@ -344,7 +346,7 @@ poisson_pedigree* poisson_pedigree::build()
 		mating_pool.clear();
 		/// Generate children
 		for (coupled_node* couple : *this) {
-			int nch = poiss(rng);
+			int nch = generate_fertility();
 			for (int i = 0; i < nch; i++) {
 				individual_node* indiv = new individual_node(this->genome_len);
 				/// Sample blocks randomly from parents
@@ -371,12 +373,12 @@ poisson_pedigree* poisson_pedigree::build()
 }
 
 // Construct given statistics, build a stochastic pedigree
-poisson_pedigree::poisson_pedigree(int genome_len, int tfr, int num_gen, int pop_sz)
-{ init(genome_len, tfr, num_gen, pop_sz, new std::unordered_set<coupled_node*>[num_gen]); }
+poisson_pedigree::poisson_pedigree(int genome_len, int tfr, int num_gen, int pop_sz, bool deterministic)
+{ init(genome_len, tfr, num_gen, pop_sz, deterministic, new std::unordered_set<coupled_node*>[num_gen]); }
 
 // Default constructor
 poisson_pedigree::poisson_pedigree()
-{ init(10, 3, 3, 10, NULL); }
+{ init(10, 3, 3, 10, 0, NULL); }
 
 // Statistic accessors
 int poisson_pedigree::num_blocks() { return this->genome_len; }
@@ -491,6 +493,10 @@ poisson_pedigree* poisson_pedigree::recover_dumped(std::string dump_out, poisson
 		/// Read extant size
 		frin.add_flag("extant", 'n', 1, [&](std::vector<std::string> v, void* p) {
 			extant_size = std::stoi(v[0]);
+		});
+		/// Read deterministic flag
+		frin.add_flag("deterministic", 'd', 0, [&](std::vector<std::string> v, void* p) {
+			static_cast<poisson_pedigree*>(p)->deterministic = true;
 		});
 		/// Make a new individual
 		frin.add_flag("individual", 'i', 1, [&](std::vector<std::string> v, void* p) {

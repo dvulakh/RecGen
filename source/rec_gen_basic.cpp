@@ -160,7 +160,7 @@ void rec_gen_basic::hypergraph_basic::insert_edge(edge_basic e)
 	/// Increment the number of occurrences of the edge by one
 	this->adj[e]++;
 	/// Maximum edge degree is 2 (per definition 3.11)
-	this->adj[e] = std::max(this->adj[e], 2);
+	this->adj[e] = std::min(this->adj[e], 2);
 	/// Add all vertices to the vertex set
 	for (coupled_node* v : e)
 		this->vert[v].insert(e);
