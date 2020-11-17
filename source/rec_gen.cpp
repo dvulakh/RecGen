@@ -43,7 +43,7 @@ poisson_pedigree* rec_gen::apply_rec_gen()
 
 // Initialization and construction of rec-gen object
 /// Initialize given all info
-void rec_gen::init(poisson_pedigree* ped, std::string work_log, std::string data_log, double sib, double rec, int d, long long settings)
+void rec_gen::init(poisson_pedigree* ped, std::string work_log, std::string data_log, double sib, double cand, double rec, int d, long long settings)
 {
 	this->ped = ped;
 	this->work_path = work_log;
@@ -51,6 +51,7 @@ void rec_gen::init(poisson_pedigree* ped, std::string work_log, std::string data
 	this->work_log = NULL;
 	this->data_log = NULL;
 	this->sib = sib;
+	this->cand = cand;
 	this->rec = rec;
 	this->d = d;
 	this->settings = settings;
@@ -67,16 +68,17 @@ rec_gen* rec_gen::init()
 	return this;
 }
 /// Construct given all info
-rec_gen::rec_gen(poisson_pedigree* ped, std::string work_log, std::string data_log, double sib, double rec, int d, long long settings)
-{ init(ped, work_log, data_log, sib, rec, d, settings); }
+rec_gen::rec_gen(poisson_pedigree* ped, std::string work_log, std::string data_log, double sib, double cand, double rec, int d, long long settings)
+{ init(ped, work_log, data_log, sib, cand, rec, d, settings); }
 /// Construct given pedigree
 rec_gen::rec_gen(poisson_pedigree* ped)
-{ init(ped, "rec-gen.log", "rec-gen.dat", DEFAULT_SIB, DEFAULT_REC, DEFAULT_D, 0); }
+{ init(ped, "rec-gen.log", "rec-gen.dat", DEFAULT_SIB, DEFAULT_SIB, DEFAULT_REC, DEFAULT_D, 0); }
 
 // Access pedigree
 poisson_pedigree* rec_gen::get_pedigree() { return this->ped; }
 
 // Mutators
+rec_gen* rec_gen::set_cand(double cand) { this->cand = cand; return this; }
 rec_gen* rec_gen::set_sib(double sib) { this->sib = sib; return this; }
 rec_gen* rec_gen::set_rec(double rec) { this->rec = rec; return this; }
-rec_gen* rec_gen::set_d(int d) {this->d = d; return this; }
+rec_gen* rec_gen::set_d(int d) { this->d = d; return this; }

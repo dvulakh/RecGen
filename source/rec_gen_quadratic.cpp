@@ -68,7 +68,7 @@ rec_gen::hypergraph* rec_gen_quadratic::test_siblinghood()
 			for (int i = 0; i < this->ped->num_blocks(); i++)
 				shared_blocks += (*jt)->has_gene(i, (*(**it)[0])[i]) || (*jt)->has_gene(i, (*(**it)[1])[i]);
 			/// If the number of shared blocks is high enough, insert to candidates
-			if (shared_blocks >= this->sib * this->ped->num_blocks()) {
+			if (shared_blocks >= this->cand * this->ped->num_blocks()) {
 				DPRINTF("Found candidate pair (%lld, %lld): %d/%d (%d%%) blocks shared", (*it)->get_id(), (*jt)->get_id(),
 					shared_blocks, this->ped->num_blocks(), 100 * shared_blocks / this->ped->num_blocks())
 				sib_cand.emplace_back(*it, *jt);

@@ -30,18 +30,18 @@ $(BIN)/mkped : $(MAIN)/pedigree_gen_main.cpp $(CORE)/*
 	@echo "Compiling mkped into $(BIN)"
 	@mkdir -p $(BIN)
 	@g++ -w -std=c++17 $(CORE)/*.cpp $(MAIN)/pedigree_gen_main.cpp \
-	-o $(BIN)/mkped
+	-Ofast -o $(BIN)/mkped
 
 # Recipe to compile rec_gen_main
 $(BIN)/recgen : $(MAIN)/rec_gen_main.cpp $(CORE)/*
 	@echo "Compiling recgen into $(BIN)"
 	@mkdir -p $(BIN)
 	@g++ -std=c++17 $(CORE)/*.cpp $(MAIN)/rec_gen_main.cpp \
-	-o $(BIN)/recgen
+	-Ofast -o $(BIN)/recgen
 
 # Recipe to compile tree_diff_main
 $(BIN)/treediff : $(MAIN)/tree_diff_main.cpp $(CORE)/*
 	@echo "Compiling treediff into $(BIN)"
 	@mkdir -p $(BIN)
 	@g++ -std=c++17 $(CORE)/*.cpp $(MAIN)/tree_diff_main.cpp \
-	-o $(BIN)/treediff
+	-Ofast -o $(BIN)/treediff

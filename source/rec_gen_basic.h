@@ -95,11 +95,8 @@ protected:
 	virtual void assign_parents(hypergraph* G);
 public:
 	// Constructors
-	/// Given pedigree
-	rec_gen_basic(poisson_pedigree* ped) : rec_gen(ped) {}
-	/// Given all
-	rec_gen_basic(poisson_pedigree* ped, std::string work_log, std::string data_log, double sib, double rec, int d, long long settings) :
-	rec_gen(ped, work_log, data_log, sib, rec, d, settings) {}
+	/// Inherit
+	using rec_gen::rec_gen;
 };
 
 #endif

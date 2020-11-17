@@ -20,11 +20,8 @@ protected:
 	virtual hypergraph* test_siblinghood();
 public:
 	// Constructors
-	/// Given pedigree
-	rec_gen_quadratic(poisson_pedigree* ped) : rec_gen_basic(ped) {}
-	/// Given all
-	rec_gen_quadratic(poisson_pedigree* ped, std::string work_log, std::string data_log, double sib, double rec, int d, long long settings) :
-			rec_gen_basic(ped, work_log, data_log, sib, rec, d, settings) {}
+	/// Inherit
+	using rec_gen_basic::rec_gen_basic;
 };
 
 #endif

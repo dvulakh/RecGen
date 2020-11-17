@@ -31,6 +31,7 @@ int main(int narg, char** args)
 	flag_reader fr;
 	LOG_FLAG_READ(fr, recgen);
 	fr.add_flag("sib", 'S', 1, [&](std::vector<std::string> v, void* p) { recgen->set_sib(std::stod(v[0])); });
+	fr.add_flag("cand", 'c', 1, [&](std::vector<std::string> v, void* p) { recgen->set_cand(std::stod(v[0])); });
 	fr.add_flag("rec", 'r', 1, [&](std::vector<std::string> v, void* p) { recgen->set_rec(std::stod(v[0])); });
 	fr.add_flag("richness", 'd', 1, [&](std::vector<std::string> v, void* p) { recgen->set_d(std::stoi(v[0])); });
 	fr.add_flag("basic", 'B', 0, [&](std::vector<std::string> v, void* p) { recgen = recbas; });
