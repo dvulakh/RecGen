@@ -67,19 +67,21 @@ std::vector<std::pair<int, int>> bad_joint_LCAs(preprocess* prep)
 					mut.insert(v);
 			/// Iterate over all pairs of mutual ancestors such that one is a descendant of another
 			for (coupled_node* v : mut)
-				for (coupled_node* u : mut)
+				for (coupled_node *u : mut)
 					if (v != u && prep->des[v].find(u) != prep->des[v].end()) {
 						/// If x and y are descended from unique children of v, this is a bad pair
-						bool bad = false;
+						std::vector<individual_node*> chx, chy;
+						std::unordered_set<coupled_node*> ancx = prep->anc[prep->extant[x]], ancy = prep->anc[prep->extant[y]];
 						for (individual_node* ch : *v) {
-							auto des = prep->des[ch->couple()];
-							if (des.find(prep->extant[x]) != des.end() && des.find(prep->extant[y]) == des.end()) {
-								bad = true;
-								break;
-							}
+							if (ancx.find(ch->couple()) != ancx.end())
+								chx.push_back(ch);
+							if (ancy.find(ch->couple()) != ancy.end())
+								chy.push_back(ch);
 						}
-						if (bad)
+						if ((chx.size() > 1 || chy.size() > 1) || chx[0] != chy[0]) {
 							bad_lca[prep->grade_of[v]].first++;
+							break;
+						}
 					}
 		}
 	/// For each generation, find the number of pairs of elements descended from distinct children
@@ -92,9 +94,9 @@ std::vector<std::pair<int, int>> bad_joint_LCAs(preprocess* prep)
 			for (individual_node* ch : *v) {
 				int nds = prep->ext[ch->couple()].size();
 				sig += nds;
-				sig += nds * nds;
+				sig2 += nds*nds;
 			}
-			bad_lca[prep->ped->cur_grade()].second += (sig - sig2) / 2;
+			bad_lca[prep->ped->cur_grade()].second += (sig*sig - sig2) / 2;
 		}
 	}
 	return bad_lca;
