@@ -403,9 +403,11 @@ poisson_pedigree* poisson_pedigree::new_grade()
 	this->grades[++this->cur_gen] = std::unordered_set<coupled_node*>();
 	return this;
 }
-/// Move to the next grade without pushing a new one (returns self)
+/// Move to the next/previous grade without pushing a new one (returns self)
 poisson_pedigree* poisson_pedigree::next_grade()
 { this->cur_gen++; return this; }
+poisson_pedigree* poisson_pedigree::prev_grade()
+{ this->cur_gen--; return this; }
 /// Add to current grade (returns added node)
 coupled_node* poisson_pedigree::add_to_current(coupled_node* couple)
 { this->grades[this->cur_gen].insert(couple); return couple; }

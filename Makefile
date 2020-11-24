@@ -23,25 +23,11 @@ run : all
 	bin/treediff $(DIF_ARGS)
 
 # Compile all
-all : $(BIN)/mkped $(BIN)/recgen $(BIN)/treediff
+all : $(BIN)/mkped $(BIN)/recgen $(BIN)/treediff $(BIN)/treeinfo
 
-# Recipe to compile pedigree_gen_main
-$(BIN)/mkped : $(MAIN)/pedigree_gen_main.cpp $(CORE)/*
-	@echo "Compiling mkped into $(BIN)"
+# Recipe for compiling main files into bin
+$(BIN)/% : $(MAIN)/%_main.cpp $(CORE)/*
+	@echo "Compiling $(@F) into $(BIN)"
 	@mkdir -p $(BIN)
-	@g++ -w -std=c++17 $(CORE)/*.cpp $(MAIN)/pedigree_gen_main.cpp \
-	-Ofast -o $(BIN)/mkped
-
-# Recipe to compile rec_gen_main
-$(BIN)/recgen : $(MAIN)/rec_gen_main.cpp $(CORE)/*
-	@echo "Compiling recgen into $(BIN)"
-	@mkdir -p $(BIN)
-	@g++ -std=c++17 $(CORE)/*.cpp $(MAIN)/rec_gen_main.cpp \
-	-Ofast -o $(BIN)/recgen
-
-# Recipe to compile tree_diff_main
-$(BIN)/treediff : $(MAIN)/tree_diff_main.cpp $(CORE)/*
-	@echo "Compiling treediff into $(BIN)"
-	@mkdir -p $(BIN)
-	@g++ -std=c++17 $(CORE)/*.cpp $(MAIN)/tree_diff_main.cpp \
-	-Ofast -o $(BIN)/treediff
+	@g++ -w -std=c++17 $(CORE)/*.cpp $(MAIN)/$(@F)_main.cpp \
+	-Ofast -o $@

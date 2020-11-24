@@ -205,8 +205,9 @@ public:
 	bool done();
 	/// Push an empty grade (returns self)
 	poisson_pedigree* new_grade();
-	/// Move to the next grade without pushing a new one (returns self)
+	/// Move to the next/previous grade without pushing a new one (returns self)
 	poisson_pedigree* next_grade();
+	poisson_pedigree* prev_grade();
 	/// Add to current grade (returns added node)
 	coupled_node* add_to_current(coupled_node* couple);
 	/// Access grades by indexing
