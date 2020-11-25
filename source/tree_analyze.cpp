@@ -53,10 +53,10 @@ preprocess::preprocess(poisson_pedigree* ped)
 /// Returns a vector of pairs, where the first element at index i is the number
 /// of such undesirable pairs for all v in generation i and the second is the
 /// total number of pairs descended from unique children
-std::vector<std::pair<int, int>> bad_joint_LCAs(preprocess* prep)
+std::vector<std::pair<long long, long long>> bad_joint_LCAs(preprocess* prep)
 {
 	/// Set up vector
-	std::vector<std::pair<int, int>> bad_lca(prep->ped->num_grade(), {0,0});
+	std::vector<std::pair<long long, long long>> bad_lca(prep->ped->num_grade(), {0,0});
 	/// Iterate through all pairs of distinct extant nodes
 	for (int x = 0; x < prep->extant.size(); x++)
 		for (int y = x + 1; y < prep->extant.size(); y++) {
@@ -90,7 +90,7 @@ std::vector<std::pair<int, int>> bad_joint_LCAs(preprocess* prep)
 		prep->ped->next_grade();
 		/// For each vertex, get sum and sum of squares
 		for (coupled_node* v : *prep->ped) {
-			int sig = 0, sig2 = 0;
+			long long sig = 0, sig2 = 0;
 			for (individual_node* ch : *v) {
 				int nds = prep->ext[ch->couple()].size();
 				sig += nds;

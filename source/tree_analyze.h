@@ -33,6 +33,6 @@ struct preprocess
 /// Returns a vector of pairs, where the first element at index i is the number
 /// of such undesirable pairs for all v in generation i and the second is the
 /// total number of pairs descended from unique children
-std::vector<std::pair<int, int>> bad_joint_LCAs(preprocess* prep);
+std::vector<std::pair<long long, long long>> bad_joint_LCAs(preprocess* prep);
 
 #endif

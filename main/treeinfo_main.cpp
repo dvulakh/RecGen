@@ -24,7 +24,7 @@ int main(int narg, char** args)
 
 	// Output
 	for (int i = 1; i < ped->num_grade(); i++)
-		std::cout << "Generation " << i << ":\t" << bad_lca[i].first << "/" << bad_lca[i].second << "\t" << (100 * bad_lca[i].first / std::max(1, bad_lca[i].second)) << "%\n";
+		std::cout << "Generation " << i << ":\t" << bad_lca[i].first << "/" << bad_lca[i].second << "\t" << (100 * bad_lca[i].first / std::max(1LL, bad_lca[i].second)) << "%\n";
 	return 0;
 
 }
