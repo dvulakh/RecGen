@@ -58,6 +58,22 @@ if [[ $r =~ [yY](es|ES)? ]]; then echo "$REC"; fi
 
 ## RUN TREE-DIFF
 
+echo "Checking reconstruction accuracy..."
 PED=$(echo "$PED" | ./chop_ped)
 echo "$PED"$'\n'"$REC" | bin/treediff $V
 if [[ ! -z $V ]]; then rm "$TMP_FILE"; fi
+
+## ANALYSIS
+
+read -p "Analyze errors?       [Y/n]: " xe
+xe=${xe:-Y}
+if [[ $xe =~ [yY](es|ES)? ]]; then
+	echo "Errors during reconstruction of first generation:"
+	echo "$PED"$'\n'"$REC" | analysis/extant_errors.pl 'rec-gen.dat'
+fi
+read -p "Graph block errors?   [Y/n]: " gb
+gb=${gb:-Y}
+if [[ $gb =~ [yY](es|ES)? ]]; then
+	analysis/graph_blocks 'tree-diff.dat' $T
+	echo 'Placed graphs in `./rec-gen-graphs`'
+fi
