@@ -5,6 +5,7 @@ SHELL := /bin/bash
 # Default director paths
 MAIN = ./main
 CORE = ./source
+LOGS = ./logs
 BIN  = ./bin
 
 # Args to programs
@@ -24,6 +25,7 @@ run : all
 
 # Compile all
 all : $(BIN)/mkped $(BIN)/recgen $(BIN)/treediff $(BIN)/treeinfo
+	@mkdir -p $(LOGS)
 
 # Recipe for compiling main files into bin
 $(BIN)/% : $(MAIN)/%_main.cpp $(CORE)/*

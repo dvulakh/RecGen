@@ -110,4 +110,4 @@ tree_diff::tree_diff(poisson_pedigree* orig, poisson_pedigree* recon, std::strin
 { init(orig, recon, work_log, data_log, settings); }
 /// Construct given pedigree
 tree_diff::tree_diff(poisson_pedigree* orig, poisson_pedigree* recon)
-{ init(orig, recon, "tree-diff.log", "tree-diff.dat", 0); }
+{ init(orig, recon, "logs/tree-diff.log", "logs/tree-diff.dat", 0); }

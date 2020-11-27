@@ -72,7 +72,7 @@ rec_gen::rec_gen(poisson_pedigree* ped, std::string work_log, std::string data_l
 { init(ped, work_log, data_log, sib, cand, rec, d, settings); }
 /// Construct given pedigree
 rec_gen::rec_gen(poisson_pedigree* ped)
-{ init(ped, "rec-gen.log", "rec-gen.dat", DEFAULT_SIB, DEFAULT_SIB, DEFAULT_REC, DEFAULT_D, 0); }
+{ init(ped, "logs/rec-gen.log", "logs/rec-gen.dat", DEFAULT_SIB, DEFAULT_SIB, DEFAULT_REC, DEFAULT_D, 0); }
 
 // Access pedigree
 poisson_pedigree* rec_gen::get_pedigree() { return this->ped; }
