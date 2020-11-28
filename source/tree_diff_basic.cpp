@@ -26,7 +26,7 @@ tree_diff* tree_diff_basic::biject_extant()
 // (assumes previous generation already bijected)
 int tree_diff_basic::biject_parent(coupled_node* v)
 {
-	WPRINTF("Searching for image of %lldo in reconstructed pedigree", v->get_id());
+	WPRINTF("Searching for image of %lldo in reconstructed pedigree", v->get_id())
 	/// Best match: node pointer and number of correct children
 	coupled_node* best = NULL;
 	int num_match = 0;
@@ -37,7 +37,7 @@ int tree_diff_basic::biject_parent(coupled_node* v)
 		if (par) {
 			par_count[par]++;
 			DPRINTF("Adding node %lldr to parent counts: new count %d",
-					par->get_id(), par_count[par]);
+					par->get_id(), par_count[par])
 		}
 	};
 	/// Loop through reconstructed children
@@ -92,13 +92,16 @@ tree_diff* tree_diff_basic::topology_biject()
 			/// Add number of edges
 			ADD_TO_BUCKET(edges_total, par.second->num_ch());
 			/// Try to find a match for the parent
-			if (this->biject_parent(par.second)) {
-				/// Increment successful bijections
-				ADD_TO_BUCKET(nodes_correct, 1);
-				/// Count correct edges
-				for (individual_node* ch : *par.second)
-					ADD_TO_BUCKET(edges_correct, this->or_to_re[par.second]->is_child(this->or_to_re[ch->couple()]));
-			}
+			bool matched = this->biject_parent(par.second);
+			/// Increment successful bijections
+			ADD_TO_BUCKET(nodes_correct, matched);
+			/// Count correct edges
+			for (individual_node* ch : *par.second)
+				if (matched && this->or_to_re[par.second]->is_child(this->or_to_re[ch->couple()]))
+					ADD_TO_BUCKET(edges_correct, 1);
+				else
+					DPRINTF("Missing edge from (%lldo -> %lldr) to (%lldo -> %lldr)", par.second->get_id(), matched ? this->or_to_re[par.second]->get_id() : -1,
+						ch->couple()->get_id(), this->or_to_re[ch->couple()] ? this->or_to_re[ch->couple()]->get_id() : -1)
 		}
 		/// Advance to next grade
 		this->recon->next_grade();

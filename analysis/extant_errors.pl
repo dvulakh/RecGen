@@ -10,6 +10,7 @@
 use strict;
 use warnings;
 use v5.26;
+use List::Util 'max';
 use experimental 'smartmatch';
 
 ### PEDIGREE INFORMATION ###
@@ -24,6 +25,8 @@ my %SIB_O; my %SIB_R;
 my %SIB_PAIR;
 # Set of hyperedge triples
 my %SIB_TRIP;
+# Set of missing edges
+my %SIB_QUERY;
 
 ### TYPES OF MISTAKES ###
 # Number of false negatives/false positives in pair detection
@@ -75,23 +78,33 @@ while (<STDIN>) {
 ### READ DATA FILE ###
 my $finished_ext = 0;
 while (<>) {
-	# Process a candidate pair
-	if (/Found candidate pair \((\d+),\s*(\d+)\)/) {
-		my $u = $R_TO_ID{$1}, my $v = $R_TO_ID{$2};
-		last if $finished_ext != 0;
-		$SIB_PAIR{canon($u, $v)} = undef;
-		$PAIR_POS++ if !($u ~~ $SIB_O{$v});
+	# Only process first generation of rec-gen data file
+	if ($finished_ext < 2) {
+		# Process a candidate pair
+		if (/Found candidate pair \((\d+),\s*(\d+)\)/) {
+			my $u = $R_TO_ID{$1}, my $v = $R_TO_ID{$2};
+			if ($finished_ext != 0) {
+				$finished_ext = 2;
+				next;
+			}
+			$SIB_PAIR{canon($u, $v)} = undef;
+			$PAIR_POS++ if !($u ~~ $SIB_O{$v});
+		}
+		# Process a hyperedge triple
+		elsif (/Inserting hypergraph edge \((\d+),\s*(\d+),\s*(\d+)\)/) {
+			my $u = $R_TO_ID{$1}, my $v = $R_TO_ID{$2}, my $w = $R_TO_ID{$3};
+			$SIB_TRIP{canon($u, $v, $w)} = undef;
+			$TRIP_POS++ if !($u ~~ $SIB_O{$v} && $w ~~ $SIB_O{$v});
+		}
+		# Process gene summary
+		elsif (/found genes \d+ and \d+ \(frequency:\s*(\d+)\s+(\d+)\)/) {
+			$LOST_GENES++ if $2 == 0;
+			$finished_ext = 1;
+		}
 	}
-	# Process a hyperedge triple
-	elsif (/Inserting hypergraph edge \((\d+),\s*(\d+),\s*(\d+)\)/) {
-		my $u = $R_TO_ID{$1}, my $v = $R_TO_ID{$2}, my $w = $R_TO_ID{$3};
-		$SIB_TRIP{canon($u, $v, $w)} = undef;
-		$TRIP_POS++ if !($u ~~ $SIB_O{$v} && $w ~~ $SIB_O{$v});
-	}
-	# Process gene summary
-	elsif (/found genes \d+ and \d+ \(frequency:\s*(\d+)\s+(\d+)\)/) {
-		$LOST_GENES++ if $2 == 0;
-		$finished_ext = 1;
+	# Process lines from tree-diff data file
+	if (/Missing edge.*to \((\d+)o/) {
+		$SIB_QUERY{$O_TO_ID{$1}} = undef if exists $O_TO_ID{$1};
 	}
 }
 
@@ -117,7 +130,7 @@ for my $i (keys %ID_TO_O) {
 	}
 }
 
-### OUTPUT ###
+### OUTPUT SUMMARY ###
 print "Pairs false negatives:   $PAIR_NEG\n";
 print "Pairs false positives:   $PAIR_POS\n";
 print "Triples false negatives: $TRIP_NEG\n";
@@ -125,6 +138,17 @@ print "Triples false positives: $TRIP_POS\n";
 print "Changeling vertex:       $CHANGELING\n";
 print "Orphaned vertex:         $ORPHAN\n";
 print "Lost genes:              $LOST_GENES\n";
+
+### PROCESS QUERIES ###
+my $qout = '';
+for my $q (keys %SIB_QUERY) {
+	my $nsib = $#{$SIB_O{$q}};
+	my $nrec = max((grep {$_ ~~ $SIB_O{$q}} @{$SIB_R{$q}}) - 1, 0);
+	my $nmis = grep {!($_ ~~ $SIB_R{$q})} @{$SIB_O{$q}};
+	my $nwsb = grep {!($_ ~~ $SIB_O{$q})} @{$SIB_R{$q}};
+	$qout .= "Vertex $q: siblings $nsib reconstructed $nrec missing $nmis incorrect $nwsb\n";
+}
+print `printf '$qout' | ./outfmt 3`;
 
 ### CANONIZATION HELPER ###
 sub canon {

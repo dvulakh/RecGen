@@ -10,7 +10,7 @@
 ######################################################################
 
 TMP='.tmp-graph-blocks.dat'
-DAT='logs/tree-diff.dat'; if [ ! -z "$1" ]; then DAT=$1; fi
+DAT='tree-diff.dat'; if [ ! -z "$1" ]; then DAT=$1; fi
 GEN=10; if [ ! -z "$2" ]; then GEN=$2; fi
 OUT='rec-gen-graphs/blocks-'; if [ ! -z "$3" ]; then OUT=$3; fi
 for (( g=1; g<=$GEN; g++ )); do
