@@ -60,6 +60,8 @@ individual_node::~individual_node()
 // Basic accessors
 /// Return lvalue of block in index b
 gene& individual_node::operator[](int b) { return this->genome[b]; }
+/// Return the genome size
+int individual_node::num_blocks() { return this->genome_size; }
 /// Return the mate coupled node
 coupled_node* individual_node::couple() { return this->mate; }
 /// Get the parent couple
@@ -146,6 +148,7 @@ void coupled_node::init(long long id, std::pair<individual_node*, individual_nod
 	id < 0 ? this->set_id() : this->set_id(id);
 	this->couple = couple;
 	this->children = children;
+	this->rec_des_blocks = NULL;
 }
 
 // Construct a coupled node given a pair to mate and the ID
@@ -174,8 +177,8 @@ individual_node*& coupled_node::operator[](int index)
 bool coupled_node::has_gene(int b, gene g)
 { return g && ((*(*this)[0])[b] == g || (*(*this)[1])[b] == g); }
 /// Insert a gene to an unassigned couple member
-gene coupled_node::insert_gene(int b, gene g)
-{ return ((*(*this)[0])[b] ? *(*this)[1] : *(*this)[0])[b] = g; }
+coupled_node* coupled_node::insert_gene(int b, gene g)
+{ ((*(*this)[0])[b] ? *(*this)[1] : *(*this)[0])[b] = g; return this; }
 
 // Get a parentless member of the couple
 individual_node* coupled_node::get_orphan()
@@ -287,6 +290,37 @@ coupled_node* coupled_node::recover_dumped(std::string dump_out, coupled_node* c
 	coupled_node::frin.possess(couple);
 	coupled_node::frin.read_flags(dump_out);
 	return static_cast<coupled_node*>(coupled_node::frin.get_possessor());
+}
+
+// Extension for recursive symbol-collection
+/// Initialize descendant gene array
+void coupled_node::init_des_blocks()
+{
+	/// Create array
+	this->rec_des_blocks = new std::list<std::pair<gene, int>>[(*this)[0]->num_blocks()]();
+	/// Populate for extant node
+	if ((*this)[0] == (*this)[1])
+		for (int i = 0; i < (*this)[0]->num_blocks(); i++)
+			this->rec_des_blocks[i].emplace_back((*(*this)[0])[i], INT32_MAX);
+}
+/// Get genes at block
+std::list<std::pair<gene, int>>& coupled_node::get_des_genes(int b)
+{
+	/// Create blocks array on first query
+	if (this->rec_des_blocks == NULL)
+		this->init_des_blocks();
+	/// Fetch required linked list
+	return this->rec_des_blocks[b];
+}
+/// Insert a gene at block
+coupled_node* coupled_node::insert_des_gene(int b, gene g, int th)
+{
+	/// Create blocks array on first query
+	if (this->rec_des_blocks == NULL)
+		this->init_des_blocks();
+	/// Insert block
+	this->rec_des_blocks[b].emplace_back(g, th);
+	return this;
 }
 
 /*********************** POISSON PEDIGREE **************************/

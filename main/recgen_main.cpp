@@ -5,7 +5,7 @@
 ********************************************************************/
 
 #include "../source/poisson_pedigree.h"
-#include "../source/rec_gen_quadratic.h"
+#include "../source/rec_gen_recursive.h"
 #include "../source/flags.h"
 
 #include <iostream>
@@ -21,11 +21,11 @@ int main(int narg, char** args)
 	poisson_pedigree* ped = poisson_pedigree::recover_dumped(extant_dump, new poisson_pedigree());
 
 	// Prepare the Rec-Gen object
+	rec_gen* recrec = new rec_gen_recursive(ped);
 	rec_gen* recgen = new rec_gen_quadratic(ped);
 	rec_gen* recbas = new rec_gen_basic(ped);
 
-	recgen->settings = LOG_WORK | LOG_DATA;
-	recbas->settings = LOG_WORK | LOG_DATA;
+	recrec->settings = recgen->settings = recbas->settings = LOG_WORK | LOG_DATA;
 
 	// Flag definitions
 	flag_reader fr;
@@ -35,6 +35,8 @@ int main(int narg, char** args)
 	fr.add_flag("rec", 'r', 1, [&](std::vector<std::string> v, void* p) { recgen->set_rec(std::stod(v[0])); });
 	fr.add_flag("richness", 'd', 1, [&](std::vector<std::string> v, void* p) { recgen->set_d(std::stoi(v[0])); });
 	fr.add_flag("basic", 'B', 0, [&](std::vector<std::string> v, void* p) { recgen = recbas; });
+	fr.add_flag("recursive", 'R', 0, [&](std::vector<std::string> v, void* p) { recgen = recrec; });
+	
 	if (fr.read_flags(narg, args) != FLAGS_INPUT_SUCCESS) {
 		std::cout << "Invalid commands" << std::endl;
 		return 1;

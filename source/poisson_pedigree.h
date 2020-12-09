@@ -14,6 +14,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <string>
+#include <list>
 
 struct individual_node;
 struct coupled_node;
@@ -80,6 +81,8 @@ public:
 	// Accessors & mutators
 	/// Index a modifiable lvalue of the gene in position b
 	gene& operator[](int b);
+	/// Get the genome size
+	int num_blocks();
 	/// Return the mate coupled node
 	coupled_node* couple();
 	/// Mate with another individual and return the couple
@@ -135,7 +138,7 @@ public:
 	/// Query whether a member of the couple has gene g in block b
 	bool has_gene(int b, gene g);
 	/// Insert a gene to an unassigned couple member
-	gene insert_gene(int b, gene g);
+	coupled_node* insert_gene(int b, gene g);
 	// Get a parentless member of the couple
 	individual_node* get_orphan();
 	// Add a child to this couple's progeny
@@ -160,6 +163,19 @@ public:
 	DUMPABLE(coupled_node)
 	// ID Information
 	PUBLIC_ID_ACCESS(coupled_node)
+// Extension for recursive symbol-collection
+private:
+	/// A linked list of genes this node "has" at each block
+	/// First element is the gene itself; second is the minimum
+	/// bushiness recursively satisfied
+	std::list<std::pair<gene, int>> *rec_des_blocks;
+	/// Initialize descendant gene array
+	void init_des_blocks();
+public:
+	/// Get genes at block
+	std::list<std::pair<gene, int>>& get_des_genes(int b);
+	/// Insert a gene at block
+	coupled_node* insert_des_gene(int b, gene g, int th);
 };
 
 /*********************** POISSON PEDIGREE **************************/

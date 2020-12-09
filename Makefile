@@ -2,7 +2,7 @@
 # Use bash
 SHELL := /bin/bash
 
-# Default director paths
+# Default directory paths
 MAIN = ./main
 CORE = ./source
 LOGS = ./logs

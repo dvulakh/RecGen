@@ -13,11 +13,12 @@ TMP='.tmp-graph-blocks.dat'
 DAT='logs/tree-diff.dat'; if [ ! -z "$1" ]; then DAT=$1; fi
 GEN=10; if [ ! -z "$2" ]; then GEN=$2; fi
 OUT='rec-gen-graphs/blocks-'; if [ ! -z "$3" ]; then OUT=$3; fi
+PLT='analysis/blocks_distribution.plt'; if [ ! -z "$4" ]; then PLT=$4; fi
 for (( g=1; g<=$GEN; g++ )); do
 	[[ $OUT =~ rec-gen-graphs/.* ]] && mkdir -p './rec-gen-graphs'
 	sed -n -E 's|^.*Comparing.*grade\s'"$g"'.*\(([0-9]+)%/.*$|\1|p' $DAT > $TMP
 	if [ -s $TMP ]; then
-		gnuplot -e "fin='$TMP'; fout='$OUT$g.png'; titin='Block recovery distribution, gen $g'" analysis/blocks_distribution.plt;
+		gnuplot -e "fin='$TMP'; fout='$OUT$g.png'; titin='Block recovery distribution, gen $g'" $PLT;
 	fi
 done
 rm $TMP

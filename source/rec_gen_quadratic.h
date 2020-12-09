@@ -9,8 +9,8 @@
 
 #include "rec_gen_basic.h"
 
-// The rec_gen_basic class is a basic implementation of the Rec-Gen algorithm
-// presented in the paper "Efficient Reconstruction of Stochastic Pedigrees"
+// The rec_gen_quadratic class improves the runtime of rec_gen_basic
+// to quadratic in extant population size
 class rec_gen_quadratic : public rec_gen_basic
 {
 protected:

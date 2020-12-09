@@ -9,9 +9,12 @@
 
 use strict;
 use warnings;
-use v5.26;
+use v5.16;
 use List::Util 'max';
 use experimental 'smartmatch';
+
+### PATH TO RECGEN ###
+my $PATH_TO_RECGEN = @ARGV > 2 ? pop @ARGV : '.';
 
 ### PEDIGREE INFORMATION ###
 # The couple ids associated with the original and reconstructed pedigrees
@@ -148,7 +151,7 @@ for my $q (keys %SIB_QUERY) {
 	my $nwsb = grep {!($_ ~~ $SIB_O{$q})} @{$SIB_R{$q}};
 	$qout .= "Vertex $q: siblings $nsib reconstructed $nrec missing $nmis incorrect $nwsb\n";
 }
-print `printf '$qout' | ./outfmt 3`;
+print `printf '$qout' | $PATH_TO_RECGEN/outfmt 3`;
 
 ### CANONIZATION HELPER ###
 sub canon {
