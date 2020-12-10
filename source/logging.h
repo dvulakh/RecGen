@@ -47,8 +47,8 @@ long long settings;
 fr.add_flag("verbose", 'v', 0, [&](std::vector<std::string> v, void* p) { logger->settings |= VER_WORK | VER_DATA; }); \
 fr.add_flag("dataf", 'D', 1, [&](std::vector<std::string> v, void* p) { logger->set_data_path(v[0]); }); \
 fr.add_flag("workf", 'W', 1, [&](std::vector<std::string> v, void* p) { logger->set_work_path(v[0]); }); \
-fr.add_flag("data", 'd', 0, [&](std::vector<std::string> v, void* p) { logger->settings |= LOG_DATA | VER_DATA, logger->settings &= ~(LOG_WORK | VER_WORK); }); \
-fr.add_flag("work", 'w', 0, [&](std::vector<std::string> v, void* p) { logger->settings |= LOG_WORK | VER_WORK, logger->settings &= ~(LOG_DATA | VER_DATA); }); \
+fr.add_flag("data", 'd', 0, [&](std::vector<std::string> v, void* p) { logger->settings |= LOG_DATA, logger->settings &= ~(LOG_WORK | VER_WORK); }); \
+fr.add_flag("work", 'w', 0, [&](std::vector<std::string> v, void* p) { logger->settings |= LOG_WORK, logger->settings &= ~(LOG_DATA | VER_DATA); }); \
 fr.add_flag("silent", 's', 0, [&](std::vector<std::string> v, void* p) { logger->settings &= ~(LOG_DATA | LOG_WORK | VER_DATA | VER_WORK); }); \
 
 #endif
