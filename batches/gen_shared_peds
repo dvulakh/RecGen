@@ -1,0 +1,22 @@
+#!/bin/bash
+#SBATCH -n 1
+#SBATCH -t 0-12:00
+#SBATCH -C centos7
+#SBATCH -p sched_engaging_default
+#SBATCH --mem-per-cpu=16000
+#SBATCH -o /dev/null
+#SBATCH -e /home/dvulakh/lustrefs/%j.err
+#SBATCH --mail-type=BEGIN,END
+#SBATCH --mail-user=dvulakh@mit.edu
+
+DIR='/home/dvulakh/recgen'
+OUT='/home/dvulakh/lustrefs/data'
+I=0; if [ ! -z "$2" ]; then I=$2; fi
+T=$1
+for A in 2 3 4 6 8 10 12; do
+for N in 20 50 100; do
+for d in '-d' ''; do
+for i in {1..25}; do
+	I=$((I+1))
+	$DIR/bin/mkped -TANB $T $A $N 25000 $d > "$OUT/"`printf "%06d" $I`"-T$T-A$A-N$N-B25000$d.ped"
+done; done; done; done;
