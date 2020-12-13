@@ -5,8 +5,10 @@
 # arguments, produces graphs of the distributions of block
 # reconstruction accuracies within each generation
 #
-# Run from project directory with analysis/graph_blocks
-# (do not run inside analysis)
+# Arg 1:  data file               [logs/tree-diff.dat]
+# Arg 2:  number of generations   [10]
+# Arg 3:  output path prefix      [rec-gen-graphs/blocks-]
+# Arg 4:  path to gnuplot script  [analysis/blocks_distribution.plt]
 ######################################################################
 
 TMP='.tmp-graph-blocks.dat'
@@ -18,7 +20,7 @@ for (( g=1; g<=$GEN; g++ )); do
 	[[ $OUT =~ rec-gen-graphs/.* ]] && mkdir -p './rec-gen-graphs'
 	sed -n -E 's|^.*Comparing.*grade\s'"$g"'.*\(([0-9]+)%/.*$|\1|p' $DAT > $TMP
 	if [ -s $TMP ]; then
-		gnuplot -e "fin='$TMP'; fout='$OUT$g.png'; titin='Block recovery distribution, gen $g'" $PLT;
+		gnuplot -e "fin='$TMP'; fout='$OUT$g.png'; titin='Block recovery distribution, gen $g'; xax='Percent blocks recovered'; yax='Couples'" $PLT;
 	fi
 done
 rm $TMP

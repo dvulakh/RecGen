@@ -206,6 +206,12 @@ bool coupled_node::is_child(coupled_node* other)
 	/// A coupled node is a child if either of its members is
 	return other && (this->is_child((*other)[0]) || this->is_child((*other)[1]));
 }
+/// Query siblinghood
+bool coupled_node::is_sib(coupled_node *other)
+{
+	/// Check if other is also a child of one of the parents
+	return other && ((*this)[0]->parent()->is_child(other) || (*this)[1]->parent()->is_child(other));
+}
 /// Query for number of children
 int coupled_node::num_ch() { return this->children.size(); }
 
@@ -321,6 +327,16 @@ coupled_node* coupled_node::insert_des_gene(int b, gene g, int th)
 	/// Insert block
 	this->rec_des_blocks[b].emplace_back(g, th);
 	return this;
+}
+
+// Count number of shared blocks in couple triple
+int shared_blocks(coupled_node* u, coupled_node* v, coupled_node* w)
+{
+	int shr = 0;
+	for (int i = 0; i < (*u)[0]->num_blocks(); i++)
+		shr += (v->has_gene(i, (*(*u)[0])[i]) && w->has_gene(i, (*(*u)[0])[i])) ||
+			(v->has_gene(i, (*(*u)[1])[i]) && w->has_gene(i, (*(*u)[1])[i]));
+	return shr;
 }
 
 /*********************** POISSON PEDIGREE **************************/

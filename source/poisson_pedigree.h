@@ -43,6 +43,11 @@ static T* recover_dumped(std::string dump_out, T*); \
 static flag_reader frin;
 #define INIT_DUMP(T) flag_reader T::frin;
 
+// Iterating over all triples in L
+#define TRIPLE_IT(L) for (auto u = (L).begin(); u != (L).end(); u++)\
+for (auto v = std::next(u); v != (L).end(); v++)\
+for (auto w = std::next(v); w != (L).end(); w++)
+
 /************************** INDIVIDUALS ****************************/
 
 // We represent a gene as a long long unsigned integer
@@ -148,6 +153,8 @@ public:
 	bool is_child(individual_node* other);
 	/// Query for a coupled node
 	bool is_child(coupled_node* other);
+	/// Query if two coupled nodes are siblings
+	bool is_sib(coupled_node* other);
 	/// Query for number of children
 	int num_ch();
 	// Remove child
@@ -177,6 +184,8 @@ public:
 	/// Insert a gene at block
 	coupled_node* insert_des_gene(int b, gene g, int th);
 };
+// Count number of shared blocks in couple triple
+int shared_blocks(coupled_node* u, coupled_node* v, coupled_node* w);
 
 /*********************** POISSON PEDIGREE **************************/
 

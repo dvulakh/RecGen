@@ -1,0 +1,37 @@
+#!/bin/bash
+
+######################################################################
+# Given a poisson pedigree, output and plot information about the
+# distributions of shared blocks in sibling and non-sibling triples
+#
+# STDIN:  poisson pedigree
+#
+# Arg 1:  siblings only? (0/1)      [0]
+# Arg 2:  output path prefix        [rec-gen-graphs/shared-]
+#         (0 for no graph output)
+# Arg 3:  path to recgen directory  [.]
+# Arg 4:  rlative path to plotting script
+#                                   [analysis/blocks_distribution.plt]
+######################################################################
+
+TMP='.tmp-graph-blocks.dat'
+SIB=0; if [ ! -z "$1" ]; then SIB=$1; fi
+OUT='rec-gen-graphs/shared-'; if [ ! -z "$2" ]; then OUT=$2; fi
+DIR='.'; if [ ! -z "$3" ]; then DIR=$3; fi
+PLT="$DIR/analysis/blocks_distribution.plt"; if [ ! -z "$4" ]; then PLT="$DIR/$4"; fi
+g=0
+printf "Stats:   min\tQ1\tmed\tmean\tQ3\tmax\n"
+while IFS= read -r dat; do
+	dat=`echo "$dat" | sed -E 's/\s+/\n/g'`
+	[[ ! $dat =~ [^\s] ]] && continue
+	[[ $SIB = 0 ]] && gi=$(($g / 3)) || gi=$g
+	[[ $SIB = 0 ]] && si=".$(($g % 3))" || si=""
+	printf "Gen $gi$si: "
+	echo "$dat" | Rscript -e 'summary (as.numeric (readLines ("stdin")))' | tail -n+2
+	if [[ ! $OUT = 0 ]]; then
+		echo "$dat" > $TMP
+		gnuplot -e "fin='$TMP'; fout='$OUT$gi$si.png'; titin='Shared blocks distribution, gen $gi$si'; xax='Percent blocks shared'; yax='Triples'" $PLT;
+		rm $TMP
+	fi
+	g=$(($g + 1))
+done < <(cat | "$DIR/bin/treeinfo" -`[[ $SIB = 0 ]] && printf 'B' || printf 'b'` 1)

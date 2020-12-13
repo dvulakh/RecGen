@@ -2,6 +2,7 @@
 /********************************************************************
 * Implements tools for analyzing the structure of poisson pedigrees:
 * - Descendants of unique children of non-joint-LCA
+* - Distribution of shared blocks in sibling and non-sibling triples
 ********************************************************************/
 
 // TODO: Add inbreeding detection?
@@ -100,4 +101,56 @@ std::vector<std::pair<long long, long long>> bad_joint_LCAs(preprocess* prep)
 		}
 	}
 	return bad_lca;
+}
+
+// Report for each generation lists of the numbers of blocks shared by
+// sibling and non-sibling triples
+/// Returns a vector of triples of linked lists. Index 0 contains data for
+/// unrelated triples; index 1 for tripling containing a sibling pair and an
+/// unrelated third; index 2 for sibling triples
+std::vector<std::list<int>*> block_share_stat(preprocess* prep)
+{
+	/// Set up vector
+	std::vector<std::list<int>*> block_stat(prep->ped->num_grade(), NULL);
+	for (std::list<int>*& e : block_stat)
+		e = new std::list<int>[3]();
+	/// For each generation, loop through all triples
+	prep->ped->reset();
+	while (!prep->ped->done()) {
+		TRIPLE_IT(*prep->ped) {
+			/// Determine how many pairs in the triple are siblings
+			int nsib = 0, ns;
+			coupled_node* ch[3] = { *u, *v, *w };
+			for (int i = 0; i < 6; i++) {
+				coupled_node* par = (*ch[i / 2])[i % 2]->parent();
+				ns = 0;
+				for (coupled_node* c : ch)
+					ns += par->is_child(c);
+				nsib = std::max(nsib, ns);
+			}
+			/// Insert shared block count
+			block_stat[prep->ped->cur_grade()][std::max(0, nsib - 1)].push_back(shared_blocks(*u, *v, *w));
+		}
+		prep->ped->next_grade();
+	}
+	return block_stat;
+}
+
+// Report for each generation lists of the numbers of blocks shared by
+// sibling triples
+/// Returns a vector of linked lists: the distributions of shared blocks for
+/// sibling triples in each generation
+std::vector<std::list<int>> sib_block_share_stat(preprocess* prep)
+{
+	/// Set up vector
+	std::vector<std::list<int>> block_stat(prep->ped->num_grade(), std::list<int>());
+	/// For each generation loop through the triples of children of each couple
+	prep->ped->reset();
+	while (!prep->ped->done()) {
+		prep->ped->next_grade();
+		for (coupled_node* par : *prep->ped)
+			TRIPLE_IT(*par)
+				block_stat[prep->ped->cur_grade() - 1].push_back(shared_blocks((*u)->couple(), (*v)->couple(), (*w)->couple()));
+	}
+	return block_stat;
 }

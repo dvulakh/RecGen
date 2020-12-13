@@ -5,11 +5,6 @@
 
 #include "rec_gen_basic.h"
 
-#define TRIPLE_IT(L) for (auto u = (L).begin(); u != (L).end(); u++)\
-for (auto v = std::next(u); v != (L).end(); v++)\
-for (auto w = std::next(v); w != (L).end(); w++)
-
-
 /************************ BASIC REC-GEN ****************************/
 
 // Reconstruct the genetic material of top-level coupled node v (returns v)
@@ -44,14 +39,9 @@ rec_gen::hypergraph* rec_gen_basic::test_siblinghood()
 	/// Make a new graph
 	rec_gen_basic::hypergraph_basic* G = new hypergraph_basic();
 	/// Iterate over all triples
-	TRIPLE_IT(*(this->ped)) {
-		/// Count the number of shared blocks
-		int shared_blocks = 0;
-		for (int i = 0; i < this->ped->num_blocks(); i++)
-			shared_blocks += ((*v)->has_gene(i, (*(**u)[0])[i]) && (*w)->has_gene(i, (*(**u)[0])[i])) ||
-				((*v)->has_gene(i, (*(**u)[1])[i]) && (*w)->has_gene(i, (*(**u)[1])[i]));
+	TRIPLE_IT(*this->ped) {
 		/// If the number of shared blocks is high enough, insert a hyperedge
-		if (shared_blocks >= this->sib * this->ped->num_blocks())
+		if (shared_blocks(*u, *v, *w) >= this->sib * this->ped->num_blocks())
 			G->insert_edge({ *u, *v, *w });
 	}
 	/// Return the hypergraph

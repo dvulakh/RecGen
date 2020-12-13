@@ -82,14 +82,11 @@ rec_gen::hypergraph* rec_gen_quadratic::test_siblinghood()
 			if (coup != pcc.first && coup != pcc.second && !G->query_edge({ pcc.first, pcc.second, coup })) {
 				/// Count the number of shared blocks
 				coupled_node *u = coup, *v = pcc.first, *w = pcc.second;
-				int shared_blocks = 0;
-				for (int i = 0; i < this->ped->num_blocks(); i++)
-					shared_blocks += (v->has_gene(i, (*(*u)[0])[i]) && w->has_gene(i, (*(*u)[0])[i])) ||
-						(v->has_gene(i, (*(*u)[1])[i]) && w->has_gene(i, (*(*u)[1])[i]));
+				int shr = shared_blocks(u, v, w);
 				/// If the number of shared blocks is high enough, insert a hyperedge
-				if (shared_blocks >= this->sib * this->ped->num_blocks()) {
+				if (shr >= this->sib * this->ped->num_blocks()) {
 					DPRINTF("Inserting hypergraph edge (%lld, %lld, %lld): %d/%d (%d%%) blocks shared", u->get_id(), v->get_id(), w->get_id(),
-			 			shared_blocks, this->ped->num_blocks(), 100 * shared_blocks / this->ped->num_blocks())
+			 			shr, this->ped->num_blocks(), 100 * shr / this->ped->num_blocks())
 					G->insert_edge({ u, v, w });
 				}
 			}

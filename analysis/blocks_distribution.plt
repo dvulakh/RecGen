@@ -1,12 +1,12 @@
-# Command-line args: fin, fout, titin
+# Command-line args: fin, fout, titin, xax, yax
 
 set terminal png
 set output fout
 
 set xrange [0:100]
 set yrange [0:system('wc -l < '.fin)+1]
-set ylabel 'Couples'
-set xlabel 'Percent blocks recovered'
+set ylabel yax
+set xlabel xax
 set title titin
 set key off
 

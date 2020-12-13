@@ -2,6 +2,7 @@
 /********************************************************************
 * Defines tools for analyzing the structure of poisson pedigrees:
 * - Descendants of unique children of non-joint-LCA
+* - Distribution of shared blocks in sibling and non-sibling triples
 ********************************************************************/
 
 // TODO: Add inbreeding detection?
@@ -34,5 +35,18 @@ struct preprocess
 /// of such undesirable pairs for all v in generation i and the second is the
 /// total number of pairs descended from unique children
 std::vector<std::pair<long long, long long>> bad_joint_LCAs(preprocess* prep);
+
+// Report for each generation lists of the numbers of blocks shared by
+// sibling and non-sibling triples
+/// Returns a vector of triples of linked lists. Index 0 contains data for
+/// unrelated triples; index 1 for tripling containing a sibling pair and an
+/// unrelated third; index 2 for sibling triples
+std::vector<std::list<int>*> block_share_stat(preprocess* prep);
+
+// Report for each generation lists of the numbers of blocks shared by
+// sibling triples
+/// Returns a vector of linked lists: the distributions of shared blocks for
+/// sibling triples in each generation
+std::vector<std::list<int>> sib_block_share_stat(preprocess* prep);
 
 #endif
