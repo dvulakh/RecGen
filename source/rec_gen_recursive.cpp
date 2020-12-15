@@ -32,7 +32,7 @@ coupled_node* rec_gen_recursive::collect_symbols(coupled_node* v)
 			int th = 0;
 			for (int i = 0; i < it->second.size(); i++)
 				th = std::max(th, std::min(i + 1, it->second[i]));
-			DPRINTF("At block %d of %lld, gene %lld has abundance %d", b, v->get_id(), it->first, th);
+			DPRINTF("At block %d of %lld, gene %lld has abundance %d", b, v->get_id(), it->first, th)
 			/// Add if above threshold
 			if (th >= this->bush_th)
 				v->insert_des_gene(b, it->first, th);
@@ -48,6 +48,7 @@ coupled_node* rec_gen_recursive::collect_symbols(coupled_node* v)
 		if (th2 < this->bush_th)
 			v->insert_des_gene(b, b2, th2);
 	}
+	return v;
 }
 /// Bushiness mutator
 int rec_gen_recursive::set_bush_th(int bush_th)

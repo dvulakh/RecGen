@@ -7,8 +7,21 @@
 #include "../source/tree_analyze.h"
 
 #include <iostream>
+#include <sstream>
 
 #define STOP_CHAR '~'
+
+std::vector<std::string> split_opts(std::string s)
+{
+	std::stringstream sin(s);
+	std::vector<std::string> opts;
+	while (sin.good()) {
+		std::string o;
+		getline(sin, o, ',');
+		opts.push_back(o);
+	}
+	return opts;
+}
 
 int main(int narg, char** args)
 {
@@ -28,8 +41,10 @@ int main(int narg, char** args)
 		std::cout << std::endl;
 	});
 	fr.add_flag("blocks", 'B', 1, [&](std::vector<std::string> v, void* p) {
-		bool div = v[0] != "0";
-		auto block_stat = block_share_stat(prep);
+		auto opts = split_opts(v[0]);
+		bool div = opts[0] != "0" && opts[0] != "";
+		int gen = opts.size() > 1 && opts[1] != "" ? stoi(opts[1]) : 0;
+		auto block_stat = block_share_stat(prep, gen);
 		for (int i = 0; i < ped->num_grade(); i++)
 			for (int j = 0; j < 3; j++) {
 				for (int e : block_stat[i][j])

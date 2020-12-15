@@ -41,7 +41,7 @@ std::vector<std::pair<long long, long long>> bad_joint_LCAs(preprocess* prep);
 /// Returns a vector of triples of linked lists. Index 0 contains data for
 /// unrelated triples; index 1 for tripling containing a sibling pair and an
 /// unrelated third; index 2 for sibling triples
-std::vector<std::list<int>*> block_share_stat(preprocess* prep);
+std::vector<std::list<int>*> block_share_stat(preprocess* prep, int start);
 
 // Report for each generation lists of the numbers of blocks shared by
 // sibling triples

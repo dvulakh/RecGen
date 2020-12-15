@@ -55,6 +55,12 @@ void rec_gen_basic::assign_parents(rec_gen::hypergraph* GARG)
 	hypergraph_basic* G = dynamic_cast<hypergraph_basic*>(GARG);
 	/// Advance to next generation
 	this->ped->new_grade();
+	/// Decay thresholds if after first generation
+	if (this->ped->cur_grade() > 1) {
+		this->cand *= this->decay;
+		this->sib *= this->decay;
+		WPRINTF("Updated thresholds (new values %f and %f)", this->cand, this->sib);
+	}
 	/// Repeatedly grab cliques and create parents for them
 	std::set<coupled_node*> clique = G->extract_clique(d);
 	WPRINTF("Got a clique of size %d", clique.size())

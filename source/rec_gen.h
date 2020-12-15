@@ -40,11 +40,12 @@ protected:
 	// Assign parents to the top-level generation based on the siblinghood hypergraph
 	virtual void assign_parents(hypergraph* G) {}
 	// Initialize given all info
-	void init(poisson_pedigree* ped, std::string work_log, std::string data_log, double sib, double cand, double rec, int d, long long settings);
+	void init(poisson_pedigree* ped, std::string work_log, std::string data_log, double sib, double cand, double decay, double rec, int d, long long settings);
 	// Private members
 	/// Search parameters
 	double sib; /// Threshold of genetic overlap for sibling triples
 	double cand; /// Threshold of genetic overlap for candidate sibling pairs
+	double decay; /// Rate at which sib and cand decay to correct for accumulating genetic noise
 	double rec; /// Proportion of genome that needs to be recovered for a node to be valid
 	int d; /// The minimum desirable siblinghood clique size (Definition 4.2, d-richness)
 public:
@@ -52,7 +53,7 @@ public:
 	/// Given pedigree
 	rec_gen(poisson_pedigree* ped);
 	/// Given all
-	rec_gen(poisson_pedigree* ped, std::string work_log, std::string data_log, double sib, double cand, double rec, int d, long long settings);
+	rec_gen(poisson_pedigree* ped, std::string work_log, std::string data_log, double sib, double cand, double decay, double rec, int d, long long settings);
 	// Initialize post-construction -- important if parameters like filenames changed since construction
 	rec_gen* init();
 	// Access pedigree
@@ -61,6 +62,7 @@ public:
 	rec_gen* set_cand(double cand);
 	rec_gen* set_sib(double sib);
 	rec_gen* set_rec(double rec);
+	rec_gen* set_dec(double decay);
 	rec_gen* set_d(int d);
 	// Rebuild (returns reconstructed pedigree)
 	virtual poisson_pedigree* apply_rec_gen();
