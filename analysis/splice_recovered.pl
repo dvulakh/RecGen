@@ -11,8 +11,6 @@
 use strict;
 use warnings;
 use v5.16;
-use List::Util 'max';
-use experimental 'smartmatch';
 
 ### PATH TO RECGEN ###
 my $PATH_TO_RECGEN = @ARGV > 1 ? pop @ARGV : '.';

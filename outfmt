@@ -9,7 +9,6 @@ use strict;
 use warnings;
 use v5.16;
 use List::Util 'max';
-use experimental 'smartmatch';
 
 my @LINES;
 my %WIDTH;
