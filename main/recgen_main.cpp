@@ -30,8 +30,18 @@ int main(int narg, char** args)
 	// Flag definitions
 	flag_reader fr;
 	LOG_FLAG_READ(fr, recgen);
-	fr.add_flag("sib", 'S', 1, [&](std::vector<std::string> v, void* p) { recgen->set_sib(std::stod(v[0])); });
-	fr.add_flag("cand", 'c', 1, [&](std::vector<std::string> v, void* p) { recgen->set_cand(std::stod(v[0])); });
+	fr.add_flag("sib", 'S', 1, [&](std::vector<std::string> v, void* p) {
+		std::vector<double> parg;
+		for (auto s : split_opts(v[0]))
+			parg.push_back(std::stod(s));
+		recgen->set_sib(parg);
+	});
+	fr.add_flag("cand", 'c', 1, [&](std::vector<std::string> v, void* p) {
+		std::vector<double> parg;
+		for (auto s : split_opts(v[0]))
+			parg.push_back(std::stod(s));
+		recgen->set_cand(parg);
+	});
 	fr.add_flag("rec", 'r', 1, [&](std::vector<std::string> v, void* p) { recgen->set_rec(std::stod(v[0])); });
 	fr.add_flag("decay", 'y', 1, [&](std::vector<std::string> v, void* p) { recgen->set_dec(std::stod(v[0])); });
 	fr.add_flag("richness", 'd', 1, [&](std::vector<std::string> v, void* p) { recgen->set_d(std::stoi(v[0])); });

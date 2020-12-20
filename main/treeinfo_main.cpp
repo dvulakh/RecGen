@@ -11,18 +11,6 @@
 
 #define STOP_CHAR '~'
 
-std::vector<std::string> split_opts(std::string s)
-{
-	std::stringstream sin(s);
-	std::vector<std::string> opts;
-	while (sin.good()) {
-		std::string o;
-		getline(sin, o, ',');
-		opts.push_back(o);
-	}
-	return opts;
-}
-
 int main(int narg, char** args)
 {
 

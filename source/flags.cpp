@@ -107,3 +107,16 @@ void flag_reader::possess(void* p) { this->pos = p; }
 
 // Get possessor
 void* flag_reader::get_possessor() { return this->pos; }
+
+// Split string on commas
+std::vector<std::string> split_opts(std::string s)
+{
+	std::stringstream sin(s);
+	std::vector<std::string> opts;
+	while (sin.good()) {
+		std::string o;
+		getline(sin, o, ',');
+		opts.push_back(o);
+	}
+	return opts;
+}

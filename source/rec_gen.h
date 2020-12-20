@@ -39,10 +39,14 @@ protected:
 	virtual hypergraph* test_siblinghood() { return new hypergraph(); }
 	// Assign parents to the top-level generation based on the siblinghood hypergraph
 	virtual void assign_parents(hypergraph* G) {}
+	// Update siblinghood thresholds
+	virtual void update_thresholds() {}
 	// Initialize given all info
 	void init(poisson_pedigree* ped, std::string work_log, std::string data_log, double sib, double cand, double decay, double rec, int d, long long settings);
 	// Private members
 	/// Search parameters
+	std::vector<double> sib_list; /// List of sib thresholds by generation
+	std::vector<double> cand_list; /// List of can thresholds by generation
 	double sib; /// Threshold of genetic overlap for sibling triples
 	double cand; /// Threshold of genetic overlap for candidate sibling pairs
 	double decay; /// Rate at which sib and cand decay to correct for accumulating genetic noise
@@ -59,8 +63,8 @@ public:
 	// Access pedigree
 	poisson_pedigree* get_pedigree();
 	// Mutators
-	rec_gen* set_cand(double cand);
-	rec_gen* set_sib(double sib);
+	rec_gen* set_cand(std::vector<double> cand_list);
+	rec_gen* set_sib(std::vector<double> sib_list);
 	rec_gen* set_rec(double rec);
 	rec_gen* set_dec(double decay);
 	rec_gen* set_d(int d);

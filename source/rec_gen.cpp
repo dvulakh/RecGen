@@ -23,6 +23,7 @@ poisson_pedigree* rec_gen::apply_rec_gen()
 	while (!ped->done()) {
 		/// Build the next generation
 		WPRINT(PRINT_HEADER("NEW GENERATION"))
+		update_thresholds();
 		WPRINT("Conducting siblinghood test")
 		hypergraph* G = test_siblinghood();
 		WPRINT("Assigning parents")
@@ -74,14 +75,14 @@ rec_gen::rec_gen(poisson_pedigree* ped, std::string work_log, std::string data_l
 { init(ped, work_log, data_log, sib, cand, decay, rec, d, settings); }
 /// Construct given pedigree
 rec_gen::rec_gen(poisson_pedigree* ped)
-{ init(ped, "logs/rec-gen.log", "logs/rec-gen.dat", DEFAULT_SIB, DEFAULT_SIB, DEFAULT_REC, DEFAULT_DEC, DEFAULT_D, 0); }
+{ init(ped, "logs/rec-gen.log", "logs/rec-gen.dat", DEFAULT_SIB, DEFAULT_SIB, DEFAULT_DEC, DEFAULT_REC, DEFAULT_D, 0); }
 
 // Access pedigree
 poisson_pedigree* rec_gen::get_pedigree() { return this->ped; }
 
 // Mutators
-rec_gen* rec_gen::set_cand(double cand) { this->cand = cand; return this; }
-rec_gen* rec_gen::set_sib(double sib) { this->sib = sib; return this; }
+rec_gen* rec_gen::set_cand(std::vector<double> cand_list) { this->cand_list = cand_list; return this; }
+rec_gen* rec_gen::set_sib(std::vector<double> sib_list) { this->sib_list = sib_list; return this; }
 rec_gen* rec_gen::set_rec(double rec) { this->rec = rec; return this; }
 rec_gen* rec_gen::set_dec(double decay) { this->decay = decay; return this; }
 rec_gen* rec_gen::set_d(int d) { this->d = d; return this; }

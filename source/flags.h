@@ -43,4 +43,7 @@ public:
 	void* get_possessor();
 };
 
+// Split string on commas
+std::vector<std::string> split_opts(std::string s);
+
 #endif

@@ -93,6 +93,8 @@ protected:
 	virtual hypergraph* test_siblinghood();
 	// Assign parents to the top-level generation based on the siblinghood hypergraph
 	virtual void assign_parents(hypergraph* G);
+	// Update thresholds
+	virtual void update_thresholds();
 public:
 	// Constructors
 	/// Inherit
