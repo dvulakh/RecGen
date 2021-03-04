@@ -97,7 +97,7 @@ void rec_gen_basic::update_thresholds()
 rec_gen_basic::hypergraph_basic::edge_basic::edge_basic(std::initializer_list<coupled_node *> vert)
 {
 	/// Get values in the order that they appear
-	auto it = vert.begin(); a = *(it++), b = (*it++), c = *(it++);
+	auto it = vert.begin(); a = *it++, b = *it++, c = *it;
 	/// Internally keep them sorted
 	if (b->get_id() > c->get_id())
 		std::swap(b, c);
