@@ -20,7 +20,7 @@ struct individual_node;
 struct coupled_node;
 class poisson_pedigree;
 
-/************************* GENERAL MACROS **************************/
+/********************** GENERAL DEFINITIONS ************************/
 
 // Nodes are going to have IDs for the purpose of the dump/restore
 // operation and for labelling isomorphisms
@@ -47,6 +47,9 @@ static flag_reader frin;
 #define TRIPLE_IT(L) for (auto u = (L).begin(); u != (L).end(); u++)\
 for (auto v = std::next(u); v != (L).end(); v++)\
 for (auto w = std::next(v); w != (L).end(); w++)
+
+// Forward-declarations of classes to be imported
+struct bp_message;
 
 /************************** INDIVIDUALS ****************************/
 
@@ -175,7 +178,7 @@ private:
 	/// A linked list of genes this node "has" at each block
 	/// First element is the gene itself; second is the minimum
 	/// bushiness recursively satisfied
-	std::list<std::pair<gene, int>> *rec_des_blocks;
+	std::list<std::pair<gene, int>>* rec_des_blocks;
 	/// Initialize descendant gene array
 	void init_des_blocks();
 public:
@@ -183,6 +186,15 @@ public:
 	std::list<std::pair<gene, int>>& get_des_genes(int b);
 	/// Insert a gene at block
 	coupled_node* insert_des_gene(int b, gene g, int th);
+// Extension for BP
+private:
+	/// Belief of gene distributions
+	bp_message** belief;
+public:
+	/// Genes found in descendants pedigree
+	std::unordered_set<gene>* all_des_genes;
+	/// Belief accessor (initializes to current genes if NULL)
+	bp_message* message(int block, long double nullval=0);
 };
 // Count number of shared blocks in couple triple
 int shared_blocks(coupled_node* u, coupled_node* v, coupled_node* w);
@@ -248,6 +260,10 @@ public:
 	/// In addition to dumping full info, a pedigree can dump just
 	/// the extant population genetic data for REC-GEN input
 	std::string dump_extant();
+// Extension for BP
+public:
+	/// Set of all genes in extant population
+	std::unordered_set<gene>* all_genes;
 };
 
 #endif

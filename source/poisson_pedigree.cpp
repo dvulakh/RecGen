@@ -7,6 +7,7 @@
 ********************************************************************/
 
 #include "poisson_pedigree.h"
+#include "bp_message.h"
 
 #include <algorithm>
 #include <cstring>
@@ -149,6 +150,8 @@ void coupled_node::init(long long id, std::pair<individual_node*, individual_nod
 	this->couple = couple;
 	this->children = children;
 	this->rec_des_blocks = NULL;
+	this->all_des_genes = NULL;
+	this->belief = NULL;
 }
 
 // Construct a coupled node given a pair to mate and the ID
@@ -329,6 +332,28 @@ coupled_node* coupled_node::insert_des_gene(int b, gene g, int th)
 	return this;
 }
 
+// Extension for belief-propagation
+/// Return belief, initializing it to detected genes if null
+bp_message* coupled_node::message(int block, long double nullval)
+{
+	/// Initialize the belief if does not already exist
+	if (!this->belief) {
+		this->belief = new bp_message*[couple.first->num_blocks()]();
+		memset(this->belief, 0, sizeof(*this->belief) * couple.first->num_blocks());
+	}
+	if (!this->belief[block])
+		/// Generate the belief to be all epsilon if there are no genes predicted
+		/// yet, or just those genes
+		if ((*(*this)[0])[block]) {
+			this->belief[block] = new bp_message(0);
+			(*this->belief[block])[bp_domain((*(*this)[0])[block], (*(*this)[1])[block])] = 1;
+		}
+		else
+			this->belief[block] = new bp_message(nullval);
+	/// Return belief
+	return this->belief[block];
+}
+
 // Count number of shared blocks in couple triple
 int shared_blocks(coupled_node* u, coupled_node* v, coupled_node* w)
 {
@@ -352,6 +377,7 @@ void poisson_pedigree::init(int genome_len, int tfr, int num_gen, int pop_sz,
 	this->grades = grades ? grades : new std::unordered_set<coupled_node*>[num_gen];
 	this->pop_sz = pop_sz;
 	this->deterministic = deterministic;
+	this->all_genes = NULL;
 }
 
 // Build a poisson pedigree (4.1)

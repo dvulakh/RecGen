@@ -6,6 +6,7 @@
 
 #include "../source/poisson_pedigree.h"
 #include "../source/rec_gen_recursive.h"
+#include "../source/rec_gen_bp.h"
 #include "../source/flags.h"
 
 #include <iostream>
@@ -24,6 +25,7 @@ int main(int narg, char** args)
 	rec_gen* recrec = new rec_gen_recursive(ped);
 	rec_gen* recgen = new rec_gen_quadratic(ped);
 	rec_gen* recbas = new rec_gen_basic(ped);
+	rec_gen* recbp  = new rec_gen_bp(ped);
 
 	recrec->settings = recgen->settings = recbas->settings = LOG_WORK | LOG_DATA;
 
@@ -47,7 +49,8 @@ int main(int narg, char** args)
 	fr.add_flag("richness", 'd', 1, [&](std::vector<std::string> v, void* p) { recgen->set_d(std::stoi(v[0])); });
 	fr.add_flag("basic", 'B', 0, [&](std::vector<std::string> v, void* p) { recgen = recbas; });
 	fr.add_flag("recursive", 'R', 0, [&](std::vector<std::string> v, void* p) { recgen = recrec; });
-	
+	fr.add_flag("bp", 'P', 0, [&](std::vector<std::string> v, void* p) { recgen = recbp; });
+
 	if (fr.read_flags(narg, args) != FLAGS_INPUT_SUCCESS) {
 		std::cout << "Invalid commands" << std::endl;
 		return 1;
