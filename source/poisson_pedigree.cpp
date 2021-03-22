@@ -334,7 +334,7 @@ coupled_node* coupled_node::insert_des_gene(int b, gene g, int th)
 
 // Extension for belief-propagation
 /// Return belief, initializing it to detected genes if null
-bp_message* coupled_node::message(int block, long double nullval)
+bp_message* coupled_node::message(int block, int domain_sz, long double nullval)
 {
 	/// Initialize the belief if does not already exist
 	if (!this->belief) {
@@ -345,11 +345,11 @@ bp_message* coupled_node::message(int block, long double nullval)
 		/// Generate the belief to be all epsilon if there are no genes predicted
 		/// yet, or just those genes
 		if ((*(*this)[0])[block]) {
-			this->belief[block] = new bp_message(0);
-			(*this->belief[block])[bp_domain((*(*this)[0])[block], (*(*this)[1])[block])] = 1;
+			this->belief[block] = new bp_message(0, domain_sz);
+			this->belief[block]->inc(bp_domain((*(*this)[0])[block], (*(*this)[1])[block]), 1);
 		}
 		else
-			this->belief[block] = new bp_message(nullval);
+			this->belief[block] = new bp_message(nullval, domain_sz);
 	/// Return belief
 	return this->belief[block];
 }

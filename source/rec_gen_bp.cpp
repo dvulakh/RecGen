@@ -32,7 +32,7 @@ coupled_node* rec_gen_bp::collect_symbols(coupled_node *v)
 			for (gene g : ext->couple()->all_des_genes[b])
 				v->all_des_genes[b].insert(g);
 		/// Initialize belief
-		v->message(b, std::pow(this->epsilon, v->num_ch()));
+		v->message(b, this->ped->all_genes->size(), std::pow(this->epsilon, v->num_ch()));
 		/// Iterate over all pairs of genes
 		for (gene g1 : v->all_des_genes[b])
 			for (gene g2 : v->all_des_genes[b])
@@ -41,30 +41,28 @@ coupled_node* rec_gen_bp::collect_symbols(coupled_node *v)
 					long double num_missing_gene[v->num_ch() + 1][v->num_ch() + 1];
 					std::memset(num_missing_gene, 0, sizeof num_missing_gene);
 					num_missing_gene[0][0] = 1;
-					/// TODO: make this less naive
 					/// DP over children
 					int i = 1;
 					for (individual_node* indiv : *v) {
 						coupled_node* ch = indiv->couple();
-						for (int j = 0; j < v->num_ch(); j++)
-							for (gene j1 : v->all_des_genes[b])
-								for (gene j2 : v->all_des_genes[b])
-									if (j1 <= j2) {
-										long double p = num_missing_gene[i - 1][j] * (*ch->message(b))[bp_domain(j1, j2)];
-										num_missing_gene[i][j + !(j1 == g1 || j1 == g2 || j2 == g1 || j2 == g2)] += p;
-									}
+						bp_message& message = *ch->message(b);
+						for (int j = 0; j < v->num_ch(); j++) {
+							long double p = message.get_marginal(g1) + (g1 != g2) * (message.get_marginal(g2) - message[bp_domain(g1, g2)]);
+							num_missing_gene[i][j] += num_missing_gene[i - 1][j] * p;
+							num_missing_gene[i][j + 1] += num_missing_gene[i - 1][j] * (1 - p);
+						}
 						i++;
 					}
 					/// Insert to distribution
-					long double& message = (*v->message(b))[bp_domain(g1, g2)];
-					message = 0;
+					bp_message& message = *v->message(b);
+					bp_domain domain = bp_domain(g1, g2);
+					message.set(domain, 0);
 					for (int i = 0; i <= v->num_ch(); i++)
-						message += num_missing_gene[v->num_ch()][i] * std::pow(this->epsilon, i);
-					WPRINTF("Marginal PDF (unnormalized) of genes %lld and %lld for couple %lld at block %d is %llf", g1, g2, v->get_id(), b, message)
+						message.inc(domain, num_missing_gene[v->num_ch()][i] * std::pow(this->epsilon, i));
+					WPRINTF("Marginal PDF (unnormalized) of genes %lld and %lld for couple %lld at block %d is %llf", g1, g2, v->get_id(), b, message[domain])
 				}
 		/// Normalize distribution
-		int sz = this->ped->all_genes->size();
-		v->message(b)->normalize(sz * (sz - 1) / 2 + sz);
+		v->message(b)->normalize();
 		/// Pick maximum pair
 		bp_domain genes = v->message(b)->extract_max();
 		v->insert_gene(b, genes[0]), v->insert_gene(b, genes[1]);

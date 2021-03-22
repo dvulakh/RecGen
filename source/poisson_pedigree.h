@@ -194,7 +194,7 @@ public:
 	/// Genes found in descendants pedigree
 	std::unordered_set<gene>* all_des_genes;
 	/// Belief accessor (initializes to current genes if NULL)
-	bp_message* message(int block, long double nullval=0);
+	bp_message* message(int block, int domain_sz=0, long double nullval=0);
 };
 // Count number of shared blocks in couple triple
 int shared_blocks(coupled_node* u, coupled_node* v, coupled_node* w);
