@@ -43,6 +43,9 @@ coupled_node* rec_gen_quadratic::collect_symbols(coupled_node* par)
 				g2 = g1, g1 = g, c2 = c1, c1 = num_block_appear[g];
 			else if (num_block_appear[g] > c2)
 				g2 = g, c2 = num_block_appear[g];
+		/// Double up genes if only one works
+		if (!g2)
+			g2 = g1, c2 = c1;
 		/// Add those genes
 		DPRINTF("For couple %lld at position %d found genes %lld and %lld (frequency: %d %d)", par->get_id(), b, g1, g2, c1, c2)
 		par->insert_gene(b, g1);
