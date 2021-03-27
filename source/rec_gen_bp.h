@@ -14,6 +14,8 @@ class rec_gen_bp : public rec_gen_quadratic
 protected:
 	// Override: reconstruct the genetic material of top-level coupled node v (returns v)
 	virtual coupled_node* collect_symbols(coupled_node* v);
+	/// Compute one-time BP message helper
+	bp_message& compute_message_at(coupled_node* v, int b);
 	/// Probability assigned to event of finding a child with a gene not in its parents
 	long double epsilon = 0.01;
 public:

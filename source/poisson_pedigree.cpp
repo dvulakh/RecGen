@@ -336,22 +336,15 @@ coupled_node* coupled_node::insert_des_gene(int b, gene g, int th)
 /// Return belief, initializing it to detected genes if null
 bp_message* coupled_node::message(int block, int domain_sz, long double nullval)
 {
-	/// Initialize the belief if does not already exist
-	if (!this->belief) {
-		this->belief = new bp_message*[couple.first->num_blocks()]();
-		memset(this->belief, 0, sizeof(*this->belief) * couple.first->num_blocks());
+	/// Generate the belief to be all epsilon if there are no genes predicted
+	/// yet, or just those genes
+	if ((*(*this)[0])[block]) {
+		bp_message* msg = new bp_message(0, domain_sz);
+		msg->inc(bp_domain((*(*this)[0])[block], (*(*this)[1])[block]), 1);
+		return msg;
 	}
-	if (!this->belief[block])
-		/// Generate the belief to be all epsilon if there are no genes predicted
-		/// yet, or just those genes
-		if ((*(*this)[0])[block]) {
-			this->belief[block] = new bp_message(0, domain_sz);
-			this->belief[block]->inc(bp_domain((*(*this)[0])[block], (*(*this)[1])[block]), 1);
-		}
-		else
-			this->belief[block] = new bp_message(nullval, domain_sz);
-	/// Return belief
-	return this->belief[block];
+	else
+		return new bp_message(nullval, domain_sz);
 }
 
 // Count number of shared blocks in couple triple
