@@ -140,6 +140,8 @@ public:
 	coupled_node(individual_node* ext);
 	/// Default
 	coupled_node() {}
+	// Destructor
+	~coupled_node();
 	// Access individuals by indexing
 	individual_node*& operator[](int index);
 	// Manipulate genes
@@ -190,6 +192,8 @@ public:
 private:
 	/// Belief of gene distributions
 	bp_message** belief;
+	/// Size of genome
+	int genome_len = -1;
 public:
 	/// Genes found in descendants pedigree
 	std::unordered_set<gene>* all_des_genes;
@@ -229,6 +233,8 @@ public:
 	poisson_pedigree();
 	/// Build pedigree
 	poisson_pedigree* build();
+	// Destructor
+	~poisson_pedigree();
 	// Statistic accessors
 	int num_blocks();
 	int num_child();

@@ -56,6 +56,8 @@ individual_node::~individual_node()
 	/// Remove from children lists if present
 	if (this->par != NULL)
 		this->par->erase_child(this);
+	/// Delete genome
+	delete[] this->genome;
 }
 
 // Basic accessors
@@ -147,6 +149,7 @@ void coupled_node::init(long long id, std::pair<individual_node*, individual_nod
 	std::unordered_set<individual_node*> children)
 {
 	id < 0 ? this->set_id() : this->set_id(id);
+	this->genome_len = -1;
 	this->couple = couple;
 	this->children = children;
 	this->rec_des_blocks = NULL;
@@ -166,6 +169,18 @@ coupled_node::coupled_node(individual_node* indiv1, individual_node* indiv2)
 // Construct a coupled node given an extant individual
 coupled_node::coupled_node(individual_node* ext)
 { init(-1, { ext, ext }, std::unordered_set<individual_node*>()); }
+
+// Destructor for coupled node
+coupled_node::~coupled_node()
+{
+	for (individual_node* ch : this->children)
+		ch->assign_par(NULL);
+	delete[] this->rec_des_blocks;
+	delete[] this->all_des_genes;
+	for (int b = 0; b <= genome_len; b++)
+		delete this->belief[b];
+	delete[] this->belief;
+}
 
 // Access individuals by indexing
 individual_node*& coupled_node::operator[](int index)
@@ -336,6 +351,8 @@ coupled_node* coupled_node::insert_des_gene(int b, gene g, int th)
 /// Return belief, initializing it to detected genes if null
 bp_message* coupled_node::message(int block, int domain_sz, long double nullval)
 {
+	/// Update genome length
+	this->genome_len = std::max(this->genome_len, block);
 	/// Initialize the belief if does not already exist
 	if (!this->belief) {
 		this->belief = new bp_message*[couple.first->num_blocks()]();
@@ -378,6 +395,22 @@ void poisson_pedigree::init(int genome_len, int tfr, int num_gen, int pop_sz,
 	this->pop_sz = pop_sz;
 	this->deterministic = deterministic;
 	this->all_genes = NULL;
+}
+
+// Destructor: purge all pedigree members
+poisson_pedigree::~poisson_pedigree()
+{
+	for (int grade = 0; grade < this->num_grade(); grade++)
+		for (coupled_node* couple : this->grades[grade]) {
+			for (individual_node* ch : *couple)
+				delete ch;
+			if ((*couple)[0] != (*couple)[1])
+				delete (*couple)[1];
+			delete (*couple)[0];
+			delete couple;
+		}
+	delete[] this->grades;
+	delete[] this->all_genes;
 }
 
 // Build a poisson pedigree (4.1)

@@ -59,6 +59,7 @@ int main(int narg, char** args)
 	// Run REC-GEN
 	recgen->init()->apply_rec_gen();
 	std::cout << recgen->get_pedigree()->dump() << std::endl;
+	delete ped;
 	return 0;
 
 }
