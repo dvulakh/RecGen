@@ -50,6 +50,7 @@ int main(int narg, char** args)
 	fr.add_flag("basic", 'B', 0, [&](std::vector<std::string> v, void* p) { recgen = recbas; });
 	fr.add_flag("recursive", 'R', 0, [&](std::vector<std::string> v, void* p) { recgen = recrec; });
 	fr.add_flag("bp", 'P', 0, [&](std::vector<std::string> v, void* p) { recgen = recbp; });
+	fr.add_flag("epsilon", 'e', 1, [&](std::vector<std::string> v, void* p) { static_cast<rec_gen_bp*>(recgen)->set_epsilon(std::stod(v[0])); });
 
 	if (fr.read_flags(narg, args) != FLAGS_INPUT_SUCCESS) {
 		std::cout << "Invalid commands" << std::endl;

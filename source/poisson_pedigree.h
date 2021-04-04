@@ -36,6 +36,7 @@ static T* get_member_by_id(long long id) \
 long long get_id() { return this->member_id; } \
 static void clear_ids() { ID_map.clear(); ID_max = 0; }
 #define INIT_ID(T) long long T::ID_max; std::unordered_map<long long, T*> T::ID_map;
+#define NOT_COPYABLE(T) T(const T& other); T& operator=(const T&);
 
 // Nodes and trees need to be dumpable and recoverable
 #define DUMPABLE(T) std::string dump(); \
@@ -77,6 +78,8 @@ private:
 	/// Initializer method chained from constructors
 	void init(long long id, int genome_size, gene* genome, coupled_node* par, coupled_node* mate);
 public:
+	// No copying
+	NOT_COPYABLE(individual_node)
 	// Constructors
 	/// Given the size of the genome and the id
 	individual_node(int genome_size, long long id);
@@ -86,6 +89,7 @@ public:
 	individual_node();
 	// Destructor
 	~individual_node();
+	individual_node* purge();
 	// Accessors & mutators
 	/// Index a modifiable lvalue of the gene in position b
 	gene& operator[](int b);
@@ -131,6 +135,8 @@ private:
 	void init(long long id, std::pair<individual_node*, individual_node*> couple,
 		std::unordered_set<individual_node*> children);
 public:
+	// No copying
+	NOT_COPYABLE(coupled_node)
 	// Constructors
 	/// Given an id
 	coupled_node(long long id);
@@ -141,7 +147,7 @@ public:
 	/// Default
 	coupled_node() {}
 	// Destructor
-	~coupled_node();
+	coupled_node* purge();
 	// Access individuals by indexing
 	individual_node*& operator[](int index);
 	// Manipulate genes
@@ -226,6 +232,8 @@ protected:
 	void init(int genome_len, int tfr, int num_gen, int pop_sz, bool deterministic,
 		std::unordered_set<coupled_node*>* grades);
 public:
+	// No copying
+	NOT_COPYABLE(poisson_pedigree)
 	// Constructors
 	/// Given statistics, build a stochastic pedigree
 	poisson_pedigree(int genome_len, int tfr, int num_gen, int pop_sz, bool deterministic);
@@ -234,7 +242,7 @@ public:
 	/// Build pedigree
 	poisson_pedigree* build();
 	// Destructor
-	~poisson_pedigree();
+	poisson_pedigree* purge();
 	// Statistic accessors
 	int num_blocks();
 	int num_child();

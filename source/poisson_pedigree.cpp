@@ -56,8 +56,12 @@ individual_node::~individual_node()
 	/// Remove from children lists if present
 	if (this->par != NULL)
 		this->par->erase_child(this);
+}
+individual_node* individual_node::purge()
+{
 	/// Delete genome
 	delete[] this->genome;
+	return this;
 }
 
 // Basic accessors
@@ -171,7 +175,7 @@ coupled_node::coupled_node(individual_node* ext)
 { init(-1, { ext, ext }, std::unordered_set<individual_node*>()); }
 
 // Destructor for coupled node
-coupled_node::~coupled_node()
+coupled_node* coupled_node::purge()
 {
 	for (individual_node* ch : this->children)
 		ch->assign_par(NULL);
@@ -180,6 +184,7 @@ coupled_node::~coupled_node()
 	for (int b = 0; b <= genome_len; b++)
 		delete this->belief[b];
 	delete[] this->belief;
+	return this;
 }
 
 // Access individuals by indexing
@@ -398,19 +403,20 @@ void poisson_pedigree::init(int genome_len, int tfr, int num_gen, int pop_sz,
 }
 
 // Destructor: purge all pedigree members
-poisson_pedigree::~poisson_pedigree()
+poisson_pedigree* poisson_pedigree::purge()
 {
 	for (int grade = 0; grade < this->num_grade(); grade++)
 		for (coupled_node* couple : this->grades[grade]) {
 			for (individual_node* ch : *couple)
-				delete ch;
+				delete ch->purge();
 			if ((*couple)[0] != (*couple)[1])
-				delete (*couple)[1];
-			delete (*couple)[0];
-			delete couple;
+				delete (*couple)[1]->purge();
+			delete (*couple)[0]->purge();
+			delete couple->purge();
 		}
 	delete[] this->grades;
 	delete[] this->all_genes;
+	return this;
 }
 
 // Build a poisson pedigree (4.1)
