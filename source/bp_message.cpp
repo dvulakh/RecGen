@@ -28,6 +28,35 @@ const gene& bp_domain::operator[](int i) const { return i ? genes.second : genes
 bool bp_domain::operator==(const bp_domain& ot) const { return this->genes == ot.genes; }
 bool bp_domain::operator<(const bp_domain& ot) const { return this->genes < ot.genes; }
 
+/**************************** EMPTY MAP ****************************/
+
+// Constructors
+template<typename T, typename U>
+empty_map<T, U>::empty_map() { this->empty = false; }
+template<typename T, typename U>
+empty_map<T, U>::empty_map(bool empty) { this->empty = empty; }
+
+// Wrapped operations
+/// Insert a single dummy element
+template<typename T, typename U>
+std::pair<typename std::map<T, U>::iterator, bool> empty_map<T, U>::insert(typename std::pair<T, U> key_val)
+{
+	if (this->empty && this->inner_map.size())
+		return { this->begin(), true };
+	return this->inner_map.insert(key_val);
+}
+
+/// Find always returns end
+template<typename T, typename U>
+typename std::map<T, U>::iterator empty_map<T, U>::find(const T &key)
+{ return this->empty ? this->end() : this->inner_map.find(key); }
+template<typename T, typename U>
+typename std::map<T, U>::iterator empty_map<T, U>::end() { return this->inner_map.end(); }
+template<typename T, typename U>
+typename std::map<T, U>::iterator empty_map<T, U>::begin() { return this->inner_map.begin(); }
+template<typename T, typename U>
+int empty_map<T, U>::size() const { return this->empty ? 0 : this->inner_map.size(); }
+
 /************************** BP MESSAGES ****************************/
 
 // Constructor
@@ -50,7 +79,7 @@ void bp_message::update_marginal(const gene &g, const long double &delta)
 }
 
 // Set & access mapped values
-long double bp_message::operator[](const bp_domain& value) const
+long double bp_message::operator[](const bp_domain& value)
 {
 	auto it = this->probabilities.find(value);
 	return it == this->probabilities.end() ? nullval : it->second;
