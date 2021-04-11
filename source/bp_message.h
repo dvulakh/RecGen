@@ -66,7 +66,9 @@ public:
 	/// Divide this message by a constant
 	bp_message& operator/=(long double scalar);
 	// Normalize this message for future use
-	void normalize();
+	bp_message& normalize();
+	// Purge pairs from memory, keeping only marginals
+	bp_message& purge();
 	// Extract maximum value
 	bp_domain extract_max();
 };

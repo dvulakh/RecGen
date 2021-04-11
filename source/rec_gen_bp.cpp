@@ -67,9 +67,13 @@ coupled_node* rec_gen_bp::collect_symbols(coupled_node *v)
 		bp_domain genes = v->message(b)->extract_max();
 		v->insert_gene(b, genes[0]), v->insert_gene(b, genes[1]);
 		DPRINTF("For couple %lld at position %d found genes %lld and %lld (marginal: %llf)", v->get_id(), b, genes[0], genes[1], (*v->message(b))[genes])
+		/// Purge pairs information if in memory-saving mode
+		if (this->purge_pairs)
+			v->message(b)->purge();
 	}
 	/// Return argument node for chaining
 	return v;
 }
 
 long double rec_gen_bp::set_epsilon(long double epsilon) { return this->epsilon = epsilon; }
+bool rec_gen_bp::set_purge_pairs(bool purge_pairs) { return this->purge_pairs = purge_pairs; }

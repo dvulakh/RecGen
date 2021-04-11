@@ -115,7 +115,7 @@ bp_message& bp_message::operator*=(long double scalar)
 bp_message& bp_message::operator/=(long double scalar) { return *this *= 1 / scalar; }
 
 // Normalize this message for future use
-void bp_message::normalize()
+bp_message& bp_message::normalize()
 {
 	/// Compute sum of probabilities
 	long double sum = 0;
@@ -123,7 +123,15 @@ void bp_message::normalize()
 		sum += value.second;
 	sum += this->nullval * (domain_sz * domain_sz - this->probabilities.size());
 	/// Divide by total sum
-	*this /= sum;
+	return *this /= sum;
+}
+
+// Purge pairs from memory, keeping only marginals
+bp_message& bp_message::purge()
+{
+	this->probabilities.clear();
+	this->nullval = 0;
+	return *this;
 }
 
 // Extract maximum-probability domain element
