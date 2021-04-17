@@ -8,6 +8,9 @@
 
 #include "rec_gen_quadratic.h"
 
+#define MEM_PURGE_PAIRS (1 << 0)
+#define MEM_PURGE_CHILD (1 << 1)
+
 // The rec_gen_bp class implements belief-propagation symbol collection
 class rec_gen_bp : public rec_gen_quadratic
 {
@@ -18,15 +21,15 @@ protected:
 	bp_message& compute_message_at(coupled_node* v, int b);
 	/// Probability assigned to event of finding a child with a gene not in its parents
 	long double epsilon = 0.01;
-	/// Whether to save space by purging pairs information after each round
-	bool purge_pairs = false;
+	/// Types of strategies used to reduce memory footprint
+	int memory_mode = 0;
 public:
 	/// Inherit constructor
 	using rec_gen_quadratic::rec_gen_quadratic;
 	/// Epsilon mutator
 	long double set_epsilon(long double epsilon);
 	/// Memory mode mutator
-	bool set_purge_pairs(bool purge_pairs);
+	int set_memory_mode(int memory_mode);
 };
 
 #endif

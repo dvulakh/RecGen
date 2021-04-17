@@ -13,6 +13,7 @@
 // Override: reconstruct the genetic material of top-level coupled node v (returns v)
 coupled_node* rec_gen_bp::collect_symbols(coupled_node *v)
 {
+	/// TODO: Make this conform to memory-saving strategies, too?
 	/// Initialize sets of genes
 	v->all_des_genes = new std::unordered_set<gene>[this->ped->num_blocks()]();
 	if (this->ped->all_genes == NULL) {
@@ -34,12 +35,11 @@ coupled_node* rec_gen_bp::collect_symbols(coupled_node *v)
 		/// Pick maximum pair
 		bp_message* msg = &compute_message_at(v, b);
 		bp_domain genes = msg->extract_max();
-		delete msg;
 		v->insert_gene(b, genes[0]), v->insert_gene(b, genes[1]);
 		DPRINTF("For couple %lld at position %d found genes %lld and %lld (marginal: %llf)", v->get_id(), b, genes[0], genes[1], (*v->message(b))[genes])
 		/// Purge pairs information if in memory-saving mode
-		if (this->purge_pairs)
-			v->message(b)->purge();
+		if (this->memory_mode & MEM_PURGE_PAIRS)
+			msg->purge();
 	}
 	/// Return argument node for chaining
 	return v;
@@ -48,8 +48,12 @@ coupled_node* rec_gen_bp::collect_symbols(coupled_node *v)
 // Compute one-time BP message helper
 bp_message& rec_gen_bp::compute_message_at(coupled_node *v, int b)
 {
-	/// Initialize belief
-	bp_message& message = *v->message(b, this->ped->all_genes->size(), std::pow(this->epsilon, v->num_ch()));
+	/// Check if the message already exists
+	bp_message*& orig_message = v->message(b, this->ped->all_genes->size(), std::pow(this->epsilon, v->num_ch()), this->memory_mode);
+	if (orig_message != NULL)
+		return *orig_message;
+	orig_message = new bp_message(0, this->ped->all_genes->size());
+	bp_message& message = *orig_message;
 	/// Iterate over all pairs of genes
 	for (gene g1 : v->all_des_genes[b])
 		for (gene g2 : v->all_des_genes[b])
@@ -69,7 +73,6 @@ bp_message& rec_gen_bp::compute_message_at(coupled_node *v, int b)
 						num_missing_gene[i][j + 1] += num_missing_gene[i - 1][j] * (1 - p);
 					}
 					i++;
-					delete &ch_msg;
 				}
 				/// Insert to distribution
 				bp_domain domain = bp_domain(g1, g2);
@@ -84,4 +87,4 @@ bp_message& rec_gen_bp::compute_message_at(coupled_node *v, int b)
 }
 
 long double rec_gen_bp::set_epsilon(long double epsilon) { return this->epsilon = epsilon; }
-bool rec_gen_bp::set_purge_pairs(bool purge_pairs) { return this->purge_pairs = purge_pairs; }
+int rec_gen_bp::set_memory_mode(int memory_mode) { return this->memory_mode = memory_mode; }

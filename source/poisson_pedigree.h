@@ -200,11 +200,13 @@ private:
 	bp_message** belief;
 	/// Size of genome
 	int genome_len = -1;
+	/// Last block accessed
+	int last_block = -1;
 public:
 	/// Genes found in descendants pedigree
 	std::unordered_set<gene>* all_des_genes;
 	/// Belief accessor (initializes to current genes if NULL)
-	bp_message* message(int block, int domain_sz=0, long double nullval=0);
+	bp_message*& message(int block, int domain_sz=0, long double nullval=0, int memory_mode=0);
 };
 // Count number of shared blocks in couple triple
 int shared_blocks(coupled_node* u, coupled_node* v, coupled_node* w);

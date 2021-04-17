@@ -7,6 +7,7 @@
 ********************************************************************/
 
 #include "poisson_pedigree.h"
+#include "rec_gen_bp.h"
 #include "bp_message.h"
 
 #include <algorithm>
@@ -354,26 +355,37 @@ coupled_node* coupled_node::insert_des_gene(int b, gene g, int th)
 
 // Extension for belief-propagation
 /// Return belief, initializing it to detected genes if null
-bp_message* coupled_node::message(int block, int domain_sz, long double nullval)
+bp_message*& coupled_node::message(int block, int domain_sz, long double nullval, int memory_mode)
 {
-	/// Update genome length
-	this->genome_len = std::max(this->genome_len, block);
 	/// Initialize the belief if does not already exist
-	if (!this->belief) {
-		this->belief = new bp_message*[couple.first->num_blocks()]();
-		memset(this->belief, 0, sizeof(*this->belief) * couple.first->num_blocks());
-	}
-	if (!this->belief[block])
-		/// Generate the belief to be all epsilon if there are no genes predicted
-		/// yet, or just those genes
-		if ((*(*this)[0])[block]) {
-			this->belief[block] = new bp_message(0, domain_sz);
-			this->belief[block]->inc(bp_domain((*(*this)[0])[block], (*(*this)[1])[block]), 1);
+	if (!this->belief)
+		/// If storing all of the messages, make an appropriate array
+		if (!(memory_mode & MEM_PURGE_CHILD)) {
+			this->genome_len = couple.first->num_blocks();
+			this->belief = new bp_message*[couple.first->num_blocks()]();
+			memset(this->belief, 0, sizeof(*this->belief) * this->genome_len);
 		}
-		else
-			this->belief[block] = new bp_message(nullval, domain_sz);
-	/// Return belief
-	return this->belief[block];
+		/// Otherwise, make a size-1 array for the single gene
+		else {
+			this->belief = new bp_message*[1]();
+			*this->belief = NULL;
+		}
+	/// Set the appropriate memory cell for mutation
+	bp_message*& message_alias = memory_mode & MEM_PURGE_CHILD ? *this->belief : this->belief[block];
+	/// Clear the message if it is stale
+	if ((memory_mode & MEM_PURGE_CHILD) && this->last_block != block) {
+		delete message_alias;
+		message_alias = NULL;
+	}
+	/// If this message is computed, return it
+	if (message_alias != NULL)
+		return message_alias;
+	/// If at an extant node, create a message with only those genes
+	if (this->children.empty()) {
+		message_alias = new bp_message(0, domain_sz);
+		message_alias->inc(bp_domain((*(*this)[0])[block], (*(*this)[1])[block]), 1);
+	}
+	return message_alias;
 }
 
 // Count number of shared blocks in couple triple
