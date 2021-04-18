@@ -1,0 +1,57 @@
+#!/bin/bash
+#SBATCH -N 1
+#SBATCH -t 00:20:00
+#SBATCH -C centos7
+#SBATCH --mem-per-cpu=64000
+#SBATCH -p sched_engaging_default
+#SBATCH -o /home/dvulakh/lustrefs/%j.out
+#SBATCH -e /home/dvulakh/lustrefs/%j.err
+
+# Load lib
+module load gcc/8.3.0
+
+# Directory paths
+PREF='/home/dvulakh/recgen'
+INF='/home/dvulakh/lustrefs/data'
+DATA='/home/dvulakh/recgen/results_dir'
+
+# Only argument is name of file to grade
+outp=$1
+outf=`echo "$1" | sed -E 's|.*/(.*)|\1|' | sed 's/.rec.gz//'`
+inf=`echo "$outf" | sed -E 's/(.*)-BS.*/\1/'`
+gen=`echo "$outf" | sed -E 's/.*-BS-([0-9]*).*/\1/'`
+DATA="$DATA/$outf"
+printf "" > $DATA
+
+# If file is empty, ignore
+if [ ! -s $outp ]; then
+	for res in "$res50" "$res75" "$res99"; do
+		echo "$outf" | sed -E 's/-[^0-9\.]*/,/g' | tr -d '\n' >> $DATA
+		printf ',DNF%.0s' {1..10} >> $DATA
+		echo >> $DATA
+	done
+	exit
+fi
+
+# Grade the file
+function grade {
+	{	gunzip -c $INF/${inf}.ped.gz | $PREF/chop_ped | $PREF/analysis/shrink_genome.pl $gen; \
+		gunzip -c $outp; } | \
+	$PREF/bin/treediff -as $1
+}
+res50=`grade 0.5`
+res75=`grade 0.75`
+res99=`grade 0.99`
+
+# Extract results
+for res in "$res50" "$res75" "$res99"; do
+	echo "$outf" | sed -E 's/-[^0-9\.]*/,/g' | tr -d '\n' >> $DATA
+	for i in {1..5}; do
+		res=`echo "$res" | sed -Ez 's/GENERATION//'`
+		nodes=`echo "$res" | sed -Ezn 's/[^T]*Nodes correct[^\(]*\(([0-9]*).*/\1/p'`
+		blocks=`echo "$res" | sed -Ezn 's/[^T]*Blocks correct[^\(]*\(([0-9]*).*/\1/p'`
+		res=`echo "$res" | sed -Ez 's/[^G]*//'`
+		printf ",$nodes,$blocks" >> $DATA
+	done
+	echo >> $DATA
+done

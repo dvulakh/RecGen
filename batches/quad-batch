@@ -1,0 +1,35 @@
+#!/bin/bash
+#SBATCH -N 1
+#SBATCH -t 05:00:00
+#SBATCH -C centos7
+#SBATCH --mem-per-cpu=64000
+#SBATCH -p sched_engaging_default
+#SBATCH -o /home/dvulakh/lustrefs/%j.out
+#SBATCH -e /home/dvulakh/lustrefs/%j.err
+
+# Load lib
+module load gcc/8.3.0
+
+# Arguments: input file (as gzip), shrink size
+PED_IN=$1
+#GEN_SIZE=$2
+
+# Directories
+PREF='/home/dvulakh/recgen'
+OUTF='/home/dvulakh/lustrefs/output'
+
+# Function to run a shrunk-genome batch
+function run_shrink {
+        gunzip -c $PED_IN | "$PREF/analysis/shrink_genome.pl" $1 | "$PREF/bin/recgen" -sc 0.4 | gzip > "$OUTF/$(echo "$PED_IN" | sed -E 's|.*/([^.]*).*|\1|')-BS-$1.rec.gz"
+}
+
+#run_shrink $GEN_SIZE
+
+# Shrink to different sizes
+#module load gcc/8.3.0
+for B in 1000 5000 15000; do # 25000; do
+        run_shrink $B &
+done
+
+# Wait for everyone
+wait
