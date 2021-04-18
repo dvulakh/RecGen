@@ -15,10 +15,13 @@
 #include <unordered_map>
 #include <string>
 #include <list>
+#include <set>
 
 struct individual_node;
 struct coupled_node;
 class poisson_pedigree;
+
+struct bp_domain;
 
 /********************** GENERAL DEFINITIONS ************************/
 
@@ -207,6 +210,10 @@ public:
 	std::unordered_set<gene>* all_des_genes;
 	/// Belief accessor (initializes to current genes if NULL)
 	bp_message*& message(int block, int domain_sz=0, long double nullval=0, int memory_mode=0);
+// Extension for Parsimony
+public:
+	/// Set genes that participate in a minimum-error pair
+	std::set<gene>* min_err;
 };
 // Count number of shared blocks in couple triple
 int shared_blocks(coupled_node* u, coupled_node* v, coupled_node* w);

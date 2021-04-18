@@ -5,7 +5,9 @@
 ********************************************************************/
 
 #include "../source/poisson_pedigree.h"
+
 #include "../source/rec_gen_recursive.h"
+#include "../source/rec_gen_parsimony.h"
 #include "../source/rec_gen_bp.h"
 #include "../source/flags.h"
 
@@ -24,10 +26,11 @@ int main(int narg, char** args)
 	// Prepare the Rec-Gen object
 	rec_gen* recrec = new rec_gen_recursive(ped);
 	rec_gen* recgen = new rec_gen_quadratic(ped);
+	rec_gen* recpar = new rec_gen_parsimony(ped);
 	rec_gen* recbas = new rec_gen_basic(ped);
 	rec_gen* recbp  = new rec_gen_bp(ped);
 
-	recrec->settings = recgen->settings = recbas->settings = LOG_WORK | LOG_DATA;
+	recpar->settings = recbp->settings = recrec->settings = recgen->settings = recbas->settings = LOG_WORK | LOG_DATA;
 
 	// Flag definitions
 	flag_reader fr;
@@ -47,11 +50,12 @@ int main(int narg, char** args)
 	fr.add_flag("rec", 'r', 1, [&](std::vector<std::string> v, void* p) { recgen->set_rec(std::stod(v[0])); });
 	fr.add_flag("decay", 'y', 1, [&](std::vector<std::string> v, void* p) { recgen->set_dec(std::stod(v[0])); });
 	fr.add_flag("richness", 'd', 1, [&](std::vector<std::string> v, void* p) { recgen->set_d(std::stoi(v[0])); });
-	fr.add_flag("basic", 'B', 0, [&](std::vector<std::string> v, void* p) { recgen = recbas; });
+	fr.add_flag("basic", 'O', 0, [&](std::vector<std::string> v, void* p) { recgen = recbas; });
 	fr.add_flag("recursive", 'R', 0, [&](std::vector<std::string> v, void* p) { recgen = recrec; });
-	fr.add_flag("bp", 'P', 0, [&](std::vector<std::string> v, void* p) { recgen = recbp; });
+	fr.add_flag("bp", 'B', 0, [&](std::vector<std::string> v, void* p) { recgen = recbp; });
 	fr.add_flag("epsilon", 'e', 1, [&](std::vector<std::string> v, void* p) { static_cast<rec_gen_bp*>(recgen)->set_epsilon(std::stod(v[0])); });
 	fr.add_flag("memmode", 'm', 1, [&](std::vector<std::string> v, void* p) { static_cast<rec_gen_bp*>(recgen)->set_memory_mode(std::stoi(v[0])); });
+	fr.add_flag("parsimony", 'P', 0, [&](std::vector<std::string> v, void* p) { recgen = recpar; });
 
 	if (fr.read_flags(narg, args) != FLAGS_INPUT_SUCCESS) {
 		std::cout << "Invalid commands" << std::endl;

@@ -159,6 +159,7 @@ void coupled_node::init(long long id, std::pair<individual_node*, individual_nod
 	this->children = children;
 	this->rec_des_blocks = NULL;
 	this->all_des_genes = NULL;
+	this->min_err = NULL;
 	this->belief = NULL;
 }
 
