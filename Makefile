@@ -9,9 +9,10 @@ LOGS = ./logs
 BIN  = ./bin
 
 # Args to programs
-PED_ARGS ?= ''
-REC_ARGS ?= ''
-DIF_ARGS ?= ''
+GCC_ARGS ?= -w -std=c++17
+PED_ARGS ?=
+REC_ARGS ?=
+DIF_ARGS ?=
 
 # Default: compile all and run interactively
 interactive : all
@@ -23,6 +24,11 @@ run : all
 	bin/recgen $(REC_ARGS) ) 3>&1 ) | \
 	bin/treediff $(DIF_ARGS)
 
+# Debug recipe
+debug : debug_flag all
+debug_flag :
+	$(eval GCC_ARGS = $(GCC_ARGS) -g -pg)
+
 # Compile all
 all : $(BIN)/mkped $(BIN)/recgen $(BIN)/treediff $(BIN)/treeinfo
 	@mkdir -p $(LOGS)
@@ -31,5 +37,5 @@ all : $(BIN)/mkped $(BIN)/recgen $(BIN)/treediff $(BIN)/treeinfo
 $(BIN)/% : $(MAIN)/%_main.cpp $(CORE)/*
 	@echo "Compiling $(@F) into $(BIN)"
 	@mkdir -p $(BIN)
-	@g++ -w -std=c++17 $(CORE)/*.cpp $(MAIN)/$(@F)_main.cpp \
+	@g++ $(GCC_ARGS) $(CORE)/*.cpp $(MAIN)/$(@F)_main.cpp \
 	-Ofast -o $@
