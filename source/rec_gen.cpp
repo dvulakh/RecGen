@@ -23,12 +23,15 @@ poisson_pedigree* rec_gen::apply_rec_gen()
 	while (!ped->done()) {
 		/// Build the next generation
 		WPRINT(PRINT_HEADER("NEW GENERATION"))
-		update_thresholds();
-		WPRINT("Conducting siblinghood test")
-		hypergraph* G = test_siblinghood();
-		WPRINT("Assigning parents")
-		assign_parents(G);
-		delete G;
+		if (!this->no_top) {
+			update_thresholds();
+			WPRINT("Conducting siblinghood test")
+			hypergraph *G = test_siblinghood();
+			WPRINT("Assigning parents")
+			assign_parents(G);
+			delete G;
+		}
+		else ped->next_grade();
 		/// Gather genetic information
 		for (coupled_node* v : *ped) {
 			WPRINTF("Collecting symbols for couple %lld", v->get_id())
@@ -86,3 +89,4 @@ rec_gen* rec_gen::set_sib(std::vector<double> sib_list) { this->sib_list = sib_l
 rec_gen* rec_gen::set_rec(double rec) { this->rec = rec; return this; }
 rec_gen* rec_gen::set_dec(double decay) { this->decay = decay; return this; }
 rec_gen* rec_gen::set_d(int d) { this->d = d; return this; }
+rec_gen* rec_gen::set_no_top(bool no_top) { this->no_top = no_top; return this; }

@@ -52,6 +52,8 @@ protected:
 	double decay; /// Rate at which sib and cand decay to correct for accumulating genetic noise
 	double rec; /// Proportion of genome that needs to be recovered for a node to be valid
 	int d; /// The minimum desirable siblinghood clique size (Definition 4.2, d-richness)
+	/// Special properties
+	bool no_top; /// Do not attempt to reconstruct topology -- perform symbol collection only
 public:
 	// Constructors
 	/// Given pedigree
@@ -68,6 +70,7 @@ public:
 	rec_gen* set_rec(double rec);
 	rec_gen* set_dec(double decay);
 	rec_gen* set_d(int d);
+	rec_gen* set_no_top(bool no_top);
 	// Rebuild (returns reconstructed pedigree)
 	virtual poisson_pedigree* apply_rec_gen();
 };
