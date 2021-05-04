@@ -51,6 +51,10 @@ int main(int narg, char** args)
 		}
 		std::cout << std::endl;
 	});
+	fr.add_flag("dump", 'd', 1, [&](std::vector<std::string> v, void* p) {
+		long long id = std::stoll(v[0]);
+		std:: cout << print_sub_ped(prep, id > 0 ? coupled_node::get_member_by_id(id) : NULL);
+	});
 	if (fr.read_flags(narg, args) != FLAGS_INPUT_SUCCESS) {
 		std::cout << "Invalid commands" << std::endl;
 		return 1;

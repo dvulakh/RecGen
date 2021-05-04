@@ -9,10 +9,20 @@
 
 #include "tree_analyze.h"
 
+#include <algorithm>
+
+// Printing macros
+#define UP_WIDTH(val, width) width = std::max(width, (int)std::to_string(val).length())
+#define PAD(val, width) (std::string(width - std::to_string(val).length(), ' ') + std::to_string(val))
+#define PAD_GENE(g) PAD(g, prep->gene_width)
+#define PAD_ID(id) PAD(id, prep->id_width)
+
 // Perform preprocessing on tree
 #define MERGE(x) merge(std::unordered_set<coupled_node*>(x))
 preprocess::preprocess(poisson_pedigree* ped)
 {
+	// Initial values
+	this->id_width = this->gene_width = 0;
 	// Claim pedigree
 	this->ped = ped;
 	// Associate vertices with their grade and descendants
@@ -33,6 +43,10 @@ preprocess::preprocess(poisson_pedigree* ped)
 				this->des[v].MERGE(this->des[u->couple()]);
 				this->ext[v].MERGE(this->ext[u->couple()]);
 			}
+			/// Get widths for padding
+			UP_WIDTH(v->get_id(), this->id_width);
+			for (int b = 0; b < this->ped->num_blocks(); b++)
+				UP_WIDTH((*(*v)[0])[b], this->gene_width), UP_WIDTH((*(*v)[1])[b], this->gene_width);
 		}
 		this->ped->next_grade();
 	}
@@ -154,4 +168,48 @@ std::vector<std::list<int>> sib_block_share_stat(preprocess* prep)
 				block_stat[prep->ped->cur_grade() - 1].push_back(shared_blocks((*u)->couple(), (*v)->couple(), (*w)->couple()));
 	}
 	return block_stat;
+}
+
+// Display the induced pedigree of a given vertex, or the whole pedigree if
+// the argument vertex is NULL
+/// Prints out a depth-first traversal of the pedigree, replacing repeated
+/// vertices with the message `[backedge]`
+std::string print_sub_ped(preprocess* prep, coupled_node* v)
+{
+	/// Recursion stack
+	std::list<std::pair<coupled_node*, int>> stack;
+	/// Answer string
+	std::string ans;
+	/// Visited couples
+	std::unordered_set<coupled_node*> vis;
+	/// Push v if it exists, otherwise the entire root population
+	if (v) stack.push_back({ v, 0 });
+	else
+		for(coupled_node* couple : (*prep->ped)[prep->ped->num_grade() - 1])
+			stack.push_back({ couple, 0 });
+	/// For each couple on the queue, if it is not visited, expand and print it
+	while (!stack.empty()) {
+		/// Pop and print the entry
+		auto front = stack.back(); stack.pop_back();
+		std::string id_record = std::string(front.second, '>') + " " + PAD_ID(front.first->get_id()) +
+			std::string(prep->ped->num_grade() - front.second, ' ');
+		ans += id_record;
+		/// If already visited, don't recurse
+		if (vis.find(front.first) != vis.end()) {
+			ans += "[backedge]\n";
+			continue;
+		}
+		vis.insert(front.first);
+		/// Print the genes
+		for (int i = 0; i < 2; i++) {
+			for (int b = 0; b < prep->ped->num_blocks(); b++)
+				ans += PAD_GENE((*(*front.first)[i])[b]) + " ";
+			ans[ans.length() - 1] = '\n';
+			if (!i) ans += std::string(id_record.length(), ' ');
+		}
+		/// Push children
+		for (individual_node* ch : *front.first)
+			stack.emplace_back(ch->couple(), front.second + 1);
+	}
+	return ans;
 }

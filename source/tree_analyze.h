@@ -21,6 +21,8 @@ struct preprocess
 	std::unordered_map<coupled_node*, std::unordered_set<coupled_node*>> anc;
 	std::unordered_map<coupled_node*, std::unordered_set<coupled_node*>> des;
 	std::unordered_map<coupled_node*, std::unordered_set<coupled_node*>> ext;
+	// Padding for printing
+	int id_width, gene_width;
 	// Extant population vector
 	std::vector<coupled_node*> extant;
 	// Label each vertex with its generation
@@ -48,5 +50,11 @@ std::vector<std::list<int>*> block_share_stat(preprocess* prep, int start);
 /// Returns a vector of linked lists: the distributions of shared blocks for
 /// sibling triples in each generation
 std::vector<std::list<int>> sib_block_share_stat(preprocess* prep);
+
+// Display the induced pedigree of a given vertex, or the whole pedigree if
+// the argument vertex is NULL
+/// Prints out a depth-first traversal of the pedigree, replacing repeated
+/// vertices with the message `[backedge]`
+std::string print_sub_ped(preprocess* prep, coupled_node* v);
 
 #endif
