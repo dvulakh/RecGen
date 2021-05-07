@@ -201,12 +201,10 @@ std::string print_sub_ped(preprocess* prep, coupled_node* v)
 		}
 		vis.insert(front.first);
 		/// Print the genes
-		for (int i = 0; i < 2; i++) {
-			for (int b = 0; b < prep->ped->num_blocks(); b++)
-				ans += PAD_GENE((*(*front.first)[i])[b]) + " ";
-			ans[ans.length() - 1] = '\n';
-			if (!i) ans += std::string(id_record.length(), ' ');
-		}
+		ans += "|";
+		for (int b = 0; b < prep->ped->num_blocks(); b++)
+			ans += PAD_GENE((*(*front.first)[0])[b]) + " " + PAD_GENE((*(*front.first)[1])[b]) + " | ";
+		ans[ans.length() - 1] = '\n';
 		/// Push children
 		for (individual_node* ch : *front.first)
 			stack.emplace_back(ch->couple(), front.second + 1);
