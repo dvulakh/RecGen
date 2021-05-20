@@ -211,3 +211,37 @@ std::string print_sub_ped(preprocess* prep, coupled_node* v)
 	}
 	return ans;
 }
+
+// Generate a tree-pedigree
+void tree_node(int, int, int, coupled_node*, gene&, poisson_pedigree*);
+poisson_pedigree* tree_ped(int B, int T, int A)
+{
+	poisson_pedigree* ped = new poisson_pedigree(B, A, T, 0, 1);
+	coupled_node* root = (new individual_node(B))->mate_with(new individual_node(B));
+	(*ped)[T - 1].insert(root);
+	for (int b = 0; b < B; b++)
+		(*(*root)[0])[b] = 1, (*(*root)[1])[b] = 2;
+	gene G = 3;
+	for (int i = 0; i < A; i++)
+		tree_node(B, T - 2, A, root, G, ped);
+	return ped;
+}
+void tree_node(int B, int T, int A, coupled_node* par, gene& G, poisson_pedigree* ped)
+{
+	if (T) {
+		coupled_node* couple = (new individual_node(B))->mate_with(par->add_child(new individual_node(B)));
+		//coupled_node* couple = new coupled_node(new individual_node(B), par->add_child(new individual_node(B)));
+		(*ped)[T].insert(couple);
+		for (int b = 0; b < B; b++)
+			(*(*couple)[0])[b] = G, (*(*couple)[1])[b] = (*(*par)[rand() > RAND_MAX / 2])[b];
+		G++;
+		for (int i = 0; i < A; i++)
+			tree_node(B, T - 1, A, couple, G, ped);
+	}
+	else {
+		individual_node* ext = par->add_child(new individual_node(B));
+		for (int b = 0; b < B; b++)
+			(*ext)[b] = (*(*par)[rand() > RAND_MAX / 2])[b];
+		(*ped)[T].insert(ext->mate_with(ext));
+	}
+}

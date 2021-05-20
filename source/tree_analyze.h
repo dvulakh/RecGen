@@ -55,6 +55,9 @@ std::vector<std::list<int>> sib_block_share_stat(preprocess* prep);
 // the argument vertex is NULL
 /// Prints out a depth-first traversal of the pedigree, replacing repeated
 /// vertices with the message `[backedge]`
-std::string print_sub_ped(preprocess* prep, coupled_node* v);
+std::string print_sub_ped(preprocess* prep, coupled_node* v = NULL);
+
+// Make tree-like pedigree
+poisson_pedigree* tree_ped(int B, int T, int A);
 
 #endif

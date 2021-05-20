@@ -55,6 +55,14 @@ int main(int narg, char** args)
 		long long id = std::stoll(v[0]);
 		std:: cout << print_sub_ped(prep, id > 0 ? coupled_node::get_member_by_id(id) : NULL);
 	});
+	fr.add_flag("tree", 'T', 3, [&](std::vector<std::string> v, void* p) {
+		int B, T, A;
+		B = std::stoi(v[0]);
+		T = std::stoi(v[1]);
+		A = std::stoi(v[2]);
+		poisson_pedigree* ped = tree_ped(B, T, A);
+		std::cout << ped->dump_extant() << std::endl << STOP_CHAR << std::endl << ped->dump() << std::endl;
+	});
 	if (fr.read_flags(narg, args) != FLAGS_INPUT_SUCCESS) {
 		std::cout << "Invalid commands" << std::endl;
 		return 1;
