@@ -692,3 +692,85 @@ poisson_pedigree* poisson_pedigree::recover_dumped(std::string dump_out, poisson
 	}
 	return ped;
 }
+
+// Generate pedigrees from shorthand
+/// Multiple lines of the form [couple id] [children couple ids]
+poisson_pedigree* poisson_pedigree::parse_shorthand(std::string ped_string)
+{
+	std::string ln;
+	std::stringstream sin(ped_string), lin;
+	std::list<coupled_node*> verts;
+	/// First line -- number of blocks and number of grades
+	int num_block, num_grade;
+	sin >> num_block >> num_grade;
+	/// Couple-creation helper
+	auto mk_couple = [&]() {
+		std::string raw_id;
+		lin >> raw_id;
+		bool extant = false;
+		if (raw_id[raw_id.length() - 1] == '*') {
+			extant = true;
+			raw_id = raw_id.substr(0, raw_id.length() - 1);
+		}
+		int id = std::stoi(raw_id);
+		coupled_node* v = coupled_node::get_member_by_id(id);
+		if (!v) {
+			if (!extant)
+				v = (new individual_node(num_block))->mate_with(new individual_node(num_block));
+			else {
+				individual_node* indiv = new individual_node(num_block);
+				v = indiv->mate_with(indiv);
+			}
+			v->set_id(id);
+			verts.push_back(v);
+		}
+		return v;
+	};
+	/// Read each line
+	while(std::getline(sin, ln, '\n')) {
+		/// Split on whitespace
+		if (ln.length() == 0)
+			continue;
+		lin = std::stringstream(ln);
+		coupled_node* par = mk_couple();
+		while (!lin.eof()) {
+			coupled_node* ch = mk_couple();
+			par->add_child((*ch)[0]->parent() ? (*ch)[1] : (*ch)[0]);
+		}
+	}
+	/// Give roots genes
+	gene g = 0;
+	for (coupled_node* v : verts)
+		if (!(*v)[0]->parent())
+			for (int i = 0; i < 2; i++) {
+				g++;
+				for (int b = 0; b < num_block; b++)
+					(*(*v)[i])[b] = g;
+			}
+	/// Place in pedigree
+	poisson_pedigree* ped = (new poisson_pedigree(num_block, 0, num_grade, 0, 0))->new_grade();
+	int num_placed = 0;
+	for (coupled_node* v : verts)
+		if ((*v)[0] == (*v)[1])
+			ped->add_to_current(v), num_placed++;
+	while (num_placed < verts.size()) {
+		ped->new_grade();
+		for (coupled_node* couple : (*ped)[ped->cur_grade() - 1])
+			if ((*couple)[0]->parent()) {
+				num_placed += ped->grades[ped->cur_grade()].find(((*couple)[0]->parent())) == ped->grades[ped->cur_grade()].end();
+				if ((*couple)[0]->parent() != (*couple)[1]->parent())
+					num_placed += ped->grades[ped->cur_grade()].find(((*couple)[1]->parent())) == ped->grades[ped->cur_grade()].end();
+				ped->add_to_current((*couple)[0]->parent()), ped->add_to_current((*couple)[1]->parent());
+			}
+	}
+	/// Inherit genes
+	while (ped->cur_grade()) {
+		ped->prev_grade();
+		for (coupled_node* couple : *ped)
+			if ((*couple)[0]->parent())
+				for (int i = 0; i < 2; i++)
+					for (int b = 0; b < num_block; b++)
+						(*(*couple)[i])[b] = (*(*(*couple)[i]->parent())[rand() > RAND_MAX / 2])[b];
+	}
+	return ped;
+}

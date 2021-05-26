@@ -185,7 +185,7 @@ std::string print_sub_ped(preprocess* prep, coupled_node* v)
 	/// Push v if it exists, otherwise the entire root population
 	if (v) stack.push_back({ v, 0 });
 	else
-		for(coupled_node* couple : (*prep->ped)[prep->ped->num_grade() - 1])
+		for (coupled_node* couple : (*prep->ped)[prep->ped->num_grade() - 1])
 			stack.push_back({ couple, 0 });
 	/// For each couple on the queue, if it is not visited, expand and print it
 	while (!stack.empty()) {

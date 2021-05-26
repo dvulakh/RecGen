@@ -30,10 +30,11 @@ struct bp_domain;
 #define PRIVATE_ID_INFO(T) static long long ID_max; \
 static std::unordered_map<long long, T*> ID_map; \
 long long member_id; \
-void set_id(long long id) { ID_map.insert({ this->member_id = id, this }); \
-ID_max = ID_max < id ? id : ID_max; } \
 void set_id() { set_id(ID_max + 1); }
 #define PUBLIC_ID_ACCESS(T) \
+void set_id(long long id) { ID_map.erase(this->member_id); \
+ID_map.insert({ this->member_id = id, this }); \
+ID_max = ID_max < id ? id : ID_max; } \
 static T* get_member_by_id(long long id) \
 { auto it = ID_map.find(id); return it == ID_map.end() ? NULL : it->second; } \
 long long get_id() { return this->member_id; } \
@@ -287,6 +288,8 @@ public:
 	/// In addition to dumping full info, a pedigree can dump just
 	/// the extant population genetic data for REC-GEN input
 	std::string dump_extant();
+	// Generate pedigrees from shorthand
+	static poisson_pedigree* parse_shorthand(std::string ped_string);
 // Extension for BP
 public:
 	/// Set of all genes in extant population
