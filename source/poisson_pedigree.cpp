@@ -257,8 +257,12 @@ std::unordered_set<individual_node*>::iterator coupled_node::end()
 { return this->children.end(); }
 
 // Get all extant descendants of a couple
-std::unordered_set<individual_node*> coupled_node::extant_desc()
+std::unordered_set<individual_node*> coupled_node::extant_desc(coupled_node* visitor)
 {
+	/// If the visitor is non-NULL and the last visitor, prune
+	if (visitor && visitor == this->last_vis_vert)
+		return std::unordered_set<individual_node*>();
+	this->last_vis_vert = visitor;
 	/// If extant layer reached, return this
 	if ((*this)[0] == (*this)[1])
 		return std::unordered_set<individual_node*>({ (*this)[0] });
@@ -266,7 +270,7 @@ std::unordered_set<individual_node*> coupled_node::extant_desc()
 	std::unordered_set<individual_node*> desc;
 	/// For all children, add their descendants to this set
 	for (individual_node* ch : (*this)) {
-		auto ret = ch->couple()->extant_desc();
+		auto ret = ch->couple()->extant_desc(visitor);
 		desc.insert(ret.begin(), ret.end());
 	}
 	return desc;

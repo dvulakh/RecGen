@@ -21,7 +21,7 @@ coupled_node* rec_gen_quadratic::collect_symbols(coupled_node* par)
 	std::vector<std::unordered_set<individual_node*>> extant(par->num_ch());
 	int i = 0; auto it = par->begin();
 	for (; it != par->end(); i++, it++)
-		extant[i] = (*it)->couple()->extant_desc();
+		extant[i] = (*it)->couple()->extant_desc(this->prune_dfs ? par : NULL);
 	/// Populate for each block an array of which genes appear and with what frequency
 	unsigned desc_have_gene[par->num_ch()][(*this->ped)[0].size() / NUM_BIT + 2];
 	int num_block_appear[(*this->ped)[0].size() + 1];
@@ -97,3 +97,7 @@ rec_gen::hypergraph* rec_gen_quadratic::test_siblinghood()
 	/// Return the hypergraph
 	return G;
 }
+
+// Pruning mutator
+rec_gen_quadratic* rec_gen_quadratic::prune() { this->prune_dfs = true; return this; }
+

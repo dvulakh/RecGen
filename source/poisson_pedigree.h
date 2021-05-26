@@ -179,11 +179,15 @@ public:
 	std::unordered_set<individual_node*>::iterator begin();
 	std::unordered_set<individual_node*>::iterator end();
 	// Get all extant descendants of a couple
-	std::unordered_set<individual_node*> extant_desc();
+	std::unordered_set<individual_node*> extant_desc(coupled_node* visitor=NULL);
 	// Info dump
 	DUMPABLE(coupled_node)
 	// ID Information
 	PUBLIC_ID_ACCESS(coupled_node)
+// Extension for dfs pruning
+private:
+	/// Last vertex and block to visit this during dfs
+	coupled_node *last_vis_vert;
 // Extension for recursive symbol-collection
 private:
 	/// A linked list of genes this node "has" at each block

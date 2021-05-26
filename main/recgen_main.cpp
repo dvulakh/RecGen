@@ -57,6 +57,7 @@ int main(int narg, char** args)
 	fr.add_flag("memmode", 'm', 1, [&](std::vector<std::string> v, void* p) { static_cast<rec_gen_bp*>(recgen)->set_memory_mode(std::stoi(v[0])); });
 	fr.add_flag("parsimony", 'P', 0, [&](std::vector<std::string> v, void* p) { recgen = recpar; });
 	fr.add_flag("notop", 't', 0, [&](std::vector<std::string> v, void* p) { recgen->set_no_top(1); });
+	fr.add_flag("prune", 'p', 0, [&](std::vector<std::string> v, void* p) { static_cast<rec_gen_quadratic*>(recgen)->prune(); });
 
 	if (fr.read_flags(narg, args) != FLAGS_INPUT_SUCCESS) {
 		std::cout << "Invalid commands" << std::endl;
