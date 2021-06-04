@@ -6,6 +6,6 @@ INPF='/home/dvulakh/lustrefs/data'
 
 # Push lots of small jobs
 for F in $INPF/*T4-A4*; do
-	nohup sbatch $PREF/batches/quad-batch $F &
+    nohup sbatch $PREF/batches/quad-batch $F &
 done
 wait

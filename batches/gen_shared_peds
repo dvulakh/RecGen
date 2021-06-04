@@ -17,6 +17,6 @@ for A in 2 3 4 6 8 10 12; do
 for N in 20 50 100; do
 for d in '-d' ''; do
 for i in {1..25}; do
-	I=$((I+1))
-	$DIR/bin/mkped -TANB $T $A $N 25000 $d > "$OUT/"`printf "%06d" $I`"-T$T-A$A-N$N-B25000$d.ped"
+    I=$((I+1))
+    $DIR/bin/mkped -TANB $T $A $N 25000 $d > "$OUT/"`printf "%06d" $I`"-T$T-A$A-N$N-B25000$d.ped"
 done; done; done; done;

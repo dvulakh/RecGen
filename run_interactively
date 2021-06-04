@@ -45,11 +45,11 @@ v=${v:-Y}
 
 # Run REC-GEN
 if [[ $v =~ [yY](es|ES)? ]]; then
-	V='-v'
-	echo "$PED" | bin/recgen $V -S $S_DEF | tee $TMP_FILE | grep -v '-'
-	REC=$(awk '/DONE/,EOF' $TMP_FILE | tail -n +2)
+    V='-v'
+    echo "$PED" | bin/recgen $V -S $S_DEF | tee $TMP_FILE | grep -v '-'
+    REC=$(awk '/DONE/,EOF' $TMP_FILE | tail -n +2)
 else
-	REC=$(echo "$PED" | bin/recgen -S $S_DEF)
+    REC=$(echo "$PED" | bin/recgen -S $S_DEF)
 fi
 read -p "Done. Print pedigree? [y/N]: " r
 r=${r:-N}
@@ -68,12 +68,12 @@ if [[ ! -z $V ]]; then rm "$TMP_FILE"; fi
 read -p "Analyze errors?       [Y/n]: " xe
 xe=${xe:-Y}
 if [[ $xe =~ [yY](es|ES)? ]]; then
-	echo "Errors during reconstruction of first generation:"
-	echo "$PED"$'\n'"$REC" | analysis/extant_errors.pl 'logs/rec-gen.dat' 'logs/tree-diff.dat'
+    echo "Errors during reconstruction of first generation:"
+    echo "$PED"$'\n'"$REC" | analysis/extant_errors.pl 'logs/rec-gen.dat' 'logs/tree-diff.dat'
 fi
 read -p "Graph block errors?   [Y/n]: " gb
 gb=${gb:-Y}
 if [[ $gb =~ [yY](es|ES)? ]]; then
-	analysis/graph_blocks 'logs/tree-diff.dat' $T
-	echo 'Placed graphs in `./rec-gen-graphs`'
+    analysis/graph_blocks 'logs/tree-diff.dat' $T
+    echo 'Placed graphs in `./rec-gen-graphs`'
 fi

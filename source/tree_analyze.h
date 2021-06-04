@@ -15,20 +15,20 @@
 // Structure that contains pedigree and preprocessing information
 struct preprocess
 {
-	// The pedigree
-	poisson_pedigree *ped;
-	// Maps from each node to sets of ancestors and descendants
-	std::unordered_map<coupled_node*, std::unordered_set<coupled_node*>> anc;
-	std::unordered_map<coupled_node*, std::unordered_set<coupled_node*>> des;
-	std::unordered_map<coupled_node*, std::unordered_set<coupled_node*>> ext;
-	// Padding for printing
-	int id_width, gene_width;
-	// Extant population vector
-	std::vector<coupled_node*> extant;
-	// Label each vertex with its generation
-	std::unordered_map<coupled_node*, int> grade_of;
-	// Constructor performs preprocessing
-	preprocess(poisson_pedigree* ped);
+    // The pedigree
+    poisson_pedigree *ped;
+    // Maps from each node to sets of ancestors and descendants
+    std::unordered_map<coupled_node*, std::unordered_set<coupled_node*>> anc;
+    std::unordered_map<coupled_node*, std::unordered_set<coupled_node*>> des;
+    std::unordered_map<coupled_node*, std::unordered_set<coupled_node*>> ext;
+    // Padding for printing
+    int id_width, gene_width;
+    // Extant population vector
+    std::vector<coupled_node*> extant;
+    // Label each vertex with its generation
+    std::unordered_map<coupled_node*, int> grade_of;
+    // Constructor performs preprocessing
+    preprocess(poisson_pedigree* ped);
 };
 
 // Count for each generation the number of extant pair-vertex combinations

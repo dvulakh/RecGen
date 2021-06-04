@@ -25,19 +25,19 @@ printf "" > $DATA
 
 # If file is empty, ignore
 if [ ! -s $outp ]; then
-	for res in "$res50" "$res75" "$res99"; do
-		echo "$outf" | sed -E 's/-[^0-9\.]*/,/g' | tr -d '\n' >> $DATA
-		printf ',DNF%.0s' {1..10} >> $DATA
-		echo >> $DATA
-	done
-	exit
+    for res in "$res50" "$res75" "$res99"; do
+        echo "$outf" | sed -E 's/-[^0-9\.]*/,/g' | tr -d '\n' >> $DATA
+        printf ',DNF%.0s' {1..10} >> $DATA
+        echo >> $DATA
+    done
+    exit
 fi
 
 # Grade the file
 function grade {
-	{	gunzip -c $INF/${inf}.ped.gz | $PREF/chop_ped | $PREF/analysis/shrink_genome.pl $gen; \
-		gunzip -c $outp; } | \
-	$PREF/bin/treediff -as $1
+    {    gunzip -c $INF/${inf}.ped.gz | $PREF/chop_ped | $PREF/analysis/shrink_genome.pl $gen; \
+        gunzip -c $outp; } | \
+    $PREF/bin/treediff -as $1
 }
 res50=`grade 0.5`
 res75=`grade 0.75`
@@ -45,13 +45,13 @@ res99=`grade 0.99`
 
 # Extract results
 for res in "$res50" "$res75" "$res99"; do
-	echo "$outf" | sed -E 's/-[^0-9\.]*/,/g' | tr -d '\n' >> $DATA
-	for i in {1..5}; do
-		res=`echo "$res" | sed -Ez 's/GENERATION//'`
-		nodes=`echo "$res" | sed -Ezn 's/[^T]*Nodes correct[^\(]*\(([0-9]*).*/\1/p'`
-		blocks=`echo "$res" | sed -Ezn 's/[^T]*Blocks correct[^\(]*\(([0-9]*).*/\1/p'`
-		res=`echo "$res" | sed -Ez 's/[^G]*//'`
-		printf ",$nodes,$blocks" >> $DATA
-	done
-	echo >> $DATA
+    echo "$outf" | sed -E 's/-[^0-9\.]*/,/g' | tr -d '\n' >> $DATA
+    for i in {1..5}; do
+        res=`echo "$res" | sed -Ez 's/GENERATION//'`
+        nodes=`echo "$res" | sed -Ezn 's/[^T]*Nodes correct[^\(]*\(([0-9]*).*/\1/p'`
+        blocks=`echo "$res" | sed -Ezn 's/[^T]*Blocks correct[^\(]*\(([0-9]*).*/\1/p'`
+        res=`echo "$res" | sed -Ez 's/[^G]*//'`
+        printf ",$nodes,$blocks" >> $DATA
+    done
+    echo >> $DATA
 done

@@ -7,8 +7,8 @@ DATA='/home/dvulakh/recgen/results_dir'
 
 # Push lots of small jobs
 for F in $INPF/*; do
-	outf=`echo "$F" | sed -E 's|.*/(.*)|\1|' | sed 's/.rec.gz//'`
-	[ -f "$DATA/$outf" ] && continue
-	nohup sbatch $PREF/batches/grade-to-file $F &
+    outf=`echo "$F" | sed -E 's|.*/(.*)|\1|' | sed 's/.rec.gz//'`
+    [ -f "$DATA/$outf" ] && continue
+    nohup sbatch $PREF/batches/grade-to-file $F &
 done
 wait

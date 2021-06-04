@@ -9,26 +9,27 @@ use strict;
 use warnings;
 use v5.16;
 use List::Util 'max';
+use experimental 'smartmatch';
 
 my @LINES;
 my %WIDTH;
 my $PAD = @ARGV ? shift @ARGV : 1;
 for (<STDIN>) {
-	if (/([^:]*:)\s+(.+)$/) {
-		push @LINES, [ ($1, split /\s+/, $2) ];
-		for my $i (0..$#{$LINES[-1]}) {
-			$WIDTH{$i} = exists $WIDTH{$i} ? max $WIDTH{$i}, length $LINES[-1][$i] : length $LINES[-1][$i];
-		}
-	} else {
-		chomp $_;
-		push @LINES, [ $_ ];
-	}
+    if (/([^:]*:)\s+(.+)$/) {
+        push @LINES, [ ($1, split /\s+/, $2) ];
+        for my $i (0..$#{$LINES[-1]}) {
+            $WIDTH{$i} = exists $WIDTH{$i} ? max $WIDTH{$i}, length $LINES[-1][$i] : length $LINES[-1][$i];
+        }
+    } else {
+        chomp $_;
+        push @LINES, [ $_ ];
+    }
 }
 
 for (@LINES) {
-	for my $i (0..$#$_) {
-		print @$_[$i];
-		print ' ' x ($WIDTH{$i} + $PAD - length @$_[$i]) if $i < $#$_;
-	}
-	print "\n";
+    for my $i (0..$#$_) {
+        print @$_[$i];
+        print ' ' x ($WIDTH{$i} + $PAD - length @$_[$i]) if $i < $#$_;
+    }
+    print "\n";
 }

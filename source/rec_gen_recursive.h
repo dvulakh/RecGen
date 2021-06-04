@@ -12,15 +12,15 @@
 class rec_gen_recursive : public rec_gen_quadratic
 {
 protected:
-	// Override: reconstruct the genetic material of top-level coupled node v (returns v)
-	virtual coupled_node* collect_symbols(coupled_node* v);
-	/// Minimum bushiness threshold for recursive symbol collection
-	int bush_th = 2;
+    // Override: reconstruct the genetic material of top-level coupled node v (returns v)
+    virtual coupled_node* collect_symbols(coupled_node* v);
+    /// Minimum bushiness threshold for recursive symbol collection
+    int bush_th = 2;
 public:
-	/// Inherit constructor
-	using rec_gen_quadratic::rec_gen_quadratic;
-	/// Bushiness mutator
-	int set_bush_th(int bush_th);
+    /// Inherit constructor
+    using rec_gen_quadratic::rec_gen_quadratic;
+    /// Bushiness mutator
+    int set_bush_th(int bush_th);
 };
 
 #endif

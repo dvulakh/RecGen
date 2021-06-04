@@ -11,6 +11,8 @@
 use strict;
 use warnings;
 use v5.16;
+use List::Util 'max';
+use experimental 'smartmatch';
 
 ### PATH TO RECGEN ###
 my $PATH_TO_RECGEN = @ARGV > 1 ? pop @ARGV : '.';
@@ -26,17 +28,17 @@ my $PED;
 ### READ PEDIGREES ###
 my $SW = 0;
 for (<STDIN>) {
-	chomp;
-	# Switch to reading reconstructed pedigree on tilde
-	$SW = 1 if /~/;
-	# Store original pedigree
-	if ($SW == 0) {
-		$PED .= "$_\n";
-	}
-	# Read genome for recovered pedigree
-	elsif (/^i.*-c\s+(\d+).*-g\s+(\d+)\s+([\d\s]+)/) {
-		push @{$R_TO_GEN{$1}}, [ split /\s+/, $3 ];
-	}
+    chomp;
+    # Switch to reading reconstructed pedigree on tilde
+    $SW = 1 if /~/;
+    # Store original pedigree
+    if ($SW == 0) {
+        $PED .= "$_\n";
+    }
+    # Read genome for recovered pedigree
+    elsif (/^i.*-c\s+(\d+).*-g\s+(\d+)\s+([\d\s]+)/) {
+        push @{$R_TO_GEN{$1}}, [ split /\s+/, $3 ];
+    }
 }
 
 ### READ BIJECTION ###
@@ -44,13 +46,13 @@ for (<>) { $O_TO_R{$1} = $2 if /bijection\s+\((\d+)o[^\d]*(\d+)r\)/; }
 
 ### SPLICE GENOMES ONTO ORIGINAL ###
 for (split /\n/, $PED) {
-	if (/^(i.*-c\s+(\d+).*-g\s+(\d+)\s+)([\d\s]+)$/) {
-		my $l = $1; my $c = $2; my $ng = $3; my @g;
-		if (exists $O_TO_R{$c} && exists $R_TO_GEN{$O_TO_R{$c}} && @{$R_TO_GEN{$O_TO_R{$c}}} > 0) {
-			@g = @{pop @{$R_TO_GEN{$O_TO_R{$c}}}};
-		} else {
-			@g = (0) x $ng;
-		}
-		print $l.(join ' ', @g)."\n";
-	} else { print "$_\n"; }
+    if (/^(i.*-c\s+(\d+).*-g\s+(\d+)\s+)([\d\s]+)$/) {
+        my $l = $1; my $c = $2; my $ng = $3; my @g;
+        if (exists $O_TO_R{$c} && exists $R_TO_GEN{$O_TO_R{$c}} && @{$R_TO_GEN{$O_TO_R{$c}}} > 0) {
+            @g = @{pop @{$R_TO_GEN{$O_TO_R{$c}}}};
+        } else {
+            @g = (0) x $ng;
+        }
+        print $l.(join ' ', @g)."\n";
+    } else { print "$_\n"; }
 }
