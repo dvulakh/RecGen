@@ -5,6 +5,7 @@
 ********************************************************************/
 
 #include "rec_gen_quadratic.h"
+#include "logging.h"
 #include <cstring>
 
 #define NUM_BIT 32
@@ -20,8 +21,10 @@ coupled_node* rec_gen_quadratic::collect_symbols(coupled_node* par)
     /// Get a vector with all extant descendants by each direct child of par
     std::vector<std::unordered_set<individual_node*>> extant(par->num_ch());
     int i = 0; auto it = par->begin();
-    for (; it != par->end(); i++, it++)
+    for (; it != par->end(); i++, it++) {
         extant[i] = (*it)->couple()->extant_desc(this->prune_dfs ? par : NULL);
+        DPRINTF("Found %d extant descendants of couple %lld (child of %lld)", extant[i].size(), (*it)->couple()->get_id(), par->get_id())
+    }
     /// Populate for each block an array of which genes appear and with what frequency
     unsigned desc_have_gene[par->num_ch()][(*this->ped)[0].size() / NUM_BIT + 2];
     int num_block_appear[(*this->ped)[0].size() + 1];
